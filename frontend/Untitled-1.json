@@ -1,0 +1,25 @@
+{
+    "name" : "DevAds Resto",
+    "params" :  [
+        {
+            "name": "calle",
+            "config": {
+                "enableMod": false,
+                "titleMod": "pruebaParam"
+            }
+        }
+    ],
+    "menu": [
+        {
+            "name":"Pastas",
+            "dishes":[
+                {
+                    "title":"fideos",
+                    "description": "Con manteca y pesto",
+                    "price": 2000,
+                    "available": true
+                }
+            ]
+        }
+    ]
+}
