@@ -17,7 +17,7 @@ import { useResto } from '../contexts/RestoContext';
 function Dashboard (){
     const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'payments'| 'stats' | 'config'> ('home');
     const { user, isLoading } = useAuth();
-    const {resto ,updateResto ,id, setId,getResto} = useResto();
+    const {resto ,updateResto ,id, setId,getResto, btnSaveEnabled} = useResto();
     const [userRestos , setUserRestos] = useState<string[]| undefined >([]);
 
 
@@ -39,6 +39,20 @@ function Dashboard (){
       getResto();
     },[id])
 
+    // Bloquear cierre/recarga/navegación si hay cambios sin guardar
+    useEffect(() => {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        if (btnSaveEnabled) {
+          e.preventDefault();
+          return false;
+        }else{
+          return true;
+        }
+      };
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [btnSaveEnabled]);
+
     const renderSection = () => {
         switch (currentView) {
           case "home":
@@ -46,7 +60,7 @@ function Dashboard (){
           case "menu":
             return <MenuSection resto={resto} updateResto={updateResto} />;
           case "visual":
-            return <VisualSection />;
+            return <VisualSection  resto={resto} updateResto={updateResto} />;
           case "payments":
             return <PaymentsSection />;
           case "stats":

@@ -69,6 +69,7 @@ export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto }) => 
                 categoryName={categoryName}
                 categoryObject={categoryObject}
                 sizeClass={sizeClass}
+                resto={resto}
               />
             );
           })

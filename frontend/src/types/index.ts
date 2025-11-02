@@ -37,6 +37,7 @@ export interface RestoContextType {
   setId: (id: string) => void;
   btnSaveEnabled: boolean;
   setBtnSaveEnabled: (state: boolean) => void;
+  getStylesOptions: () => Promise<StyleOptionsMap | null>;
 }
 
 export interface PublicContextType {
@@ -49,6 +50,8 @@ export interface PublicContextType {
   bgImage: string| undefined;
   setBgImage: (bg: string | undefined) => void;
 }
+
+export type StyleOptionsMap = Record<string, Array<{ id: string; label: string; value: string }>>;
 
 // Resto types
 export interface Resto {
@@ -159,8 +162,8 @@ export interface Config {
   slogan:string; 
   paramModalsEnable : boolean;
   paramModalsDelay : number;
-  srcImgBackground : string;
-  srcImgLogo : string;
+  srcImgBackground : SignedImage;
+  srcImgLogo : SignedImage;
 }
 
 export interface OpDspCommercial {
@@ -229,6 +232,14 @@ export interface Category {
   dishes: Dish[];
 }
 
+  export interface SignedImage {
+    secure_url: string;
+    public_id: string;
+    width?: number;
+    height?: number;
+    format?: string;
+  }
+
   export interface Dish {
     _id: string;
     category?: string;
@@ -240,7 +251,7 @@ export interface Category {
     dayDish: boolean;
     glutenFree: boolean;
     veggie: boolean;
-    image: string;
+    image?: SignedImage;
     featuredText: string;
     featuredTextColor: string;
     EnDisplayDePaso: boolean;

@@ -1,18 +1,18 @@
-import React, { useState } from "react";
+import React, { useState , useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Link,
-  Eye
+  Eye,
+  X,
+  Move
 } from "lucide-react";
 
 import { useAuth } from "../contexts/AuthContext";
-import { useResto } from "../contexts/RestoContext"; 
-import Interface from "../publicPage/Inteface.layout";
-import Container from "../publicPage/Container.layout";
+import { useResto } from "../contexts/RestoContext";
 
 export default function TopBar() {
     const {user} = useAuth();
-    const {resto} = useResto();
+    const {resto, btnSaveEnabled, setBtnSaveEnabled} = useResto();
     const Navigate = useNavigate();
     const [modalShow,setModalShow] = useState(false);
 
@@ -32,7 +32,14 @@ export default function TopBar() {
         <button 
             title='Menu Público' 
             className="flex bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 h-fit ml-2 rounded-md" 
-            onClick={()=> Navigate('/app/'+resto?.slug)}
+            onClick={()=> {
+                if(btnSaveEnabled){
+                    const res = confirm("Tienes cambios sin guardar, estas seguro de salir de esta seccion?Tus cambios se perderán");
+                    if(!res) return;
+                    setBtnSaveEnabled(false);
+                }
+                Navigate('/app/'+resto?.slug)
+            }}
         >
             Menu Público &nbsp; <Link/>
         </button>
@@ -41,30 +48,164 @@ export default function TopBar() {
      <PreviewModal
         open={modalShow}
         onClose={() => setModalShow(false)}
-        slug={resto?.slug}
         />
     </>
 }
 
 
-function PreviewModal({ open, onClose}:any) {
-    if (!open) return null;
+function PreviewModal({ open, onClose }: any) {
+  const [selectedFormat, setSelectedFormat] = useState('smartphone');
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [iframeKey, setIframeKey] = useState(0);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const {restoPreview} = useResto();
 
+  const formatSizes = {
+    smartphone: { width: '375px', height: '667px' },
+    tablet: { width: '768px', height: '1024px' },
+    desktop: { width: '1200px', height: '800px' }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!modalRef.current) return;
+    const rect = modalRef.current.getBoundingClientRect();
+    setDragOffset({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging || !modalRef.current) return;
+    modalRef.current.style.left = `${e.clientX - dragOffset.x}px`;
+    modalRef.current.style.top = `${e.clientY - dragOffset.y}px`;
+    modalRef.current.style.transform = 'none';
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  useEffect(() => {
+    if (!isDragging) return;
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragOffset]);
+
+  // Sync preview data to localStorage so the iframe (new app instance) can consume it
+  useEffect(() => {
+    if (open && restoPreview) {
+      try {
+        localStorage.setItem('saborear_preview', JSON.stringify(restoPreview));
+      } catch {}
+      setIframeKey((k) => k + 1);
+    }
+  }, [open, restoPreview]);
+
+  const previewUrl = `/preview/${restoPreview?.slug || ''}?v=${iframeKey}`;
+
+  if (!open) return null; 
+ 
 
     return (
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-        onClick={onClose} // Cierra al hacer click fuera
-      >
-        <div 
-          className="w-[50vw] h-[60vh] bg-white overflow-auto" 
-          onClick={(e)=>{
-            e.stopPropagation();
-          }}>
-          <Container mode="preview">
-            <Interface mode="preview"/>
-          </Container>
+        <div
+            className="fixed inset-0 z-50 pointer-events-none"
+        >
+            <div 
+                ref={modalRef}
+                className="absolute bg-white rounded-lg shadow-2xl border-2 border-gray-300 pointer-events-auto"
+                style={{
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 'fit-content',
+                    minWidth: '400px',
+                    maxHeight: '90vh',
+                    overflow: 'hidden'
+                }}
+            >
+                {/* Header with drag handle and close button */}
+                <div 
+                    className="cursor-move flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg"
+                    onMouseDown={handleMouseDown}
+                    title="Arrastrar para mover">
+                    <div className="flex items-center gap-2">
+                        <div className=" p-1 hover:bg-gray-200 rounded transition-colors">
+                            <Move className="w-4 h-4 text-gray-500" />
+                        </div>
+                        <span className="font-semibold text-gray-700">Vista Previa</span>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                        title="Cerrar"
+                    >
+                        <X className="w-5 h-5 text-gray-500" />
+                    </button>
+                </div>
+
+                {/* Format selector */}
+                <div className="p-4 border-b border-gray-200">
+                    <h3 className="text-sm font-medium text-gray-700 mb-3">Formato de visualización:</h3>
+                    <div className="flex gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="format"
+                                value="smartphone"
+                                checked={selectedFormat === 'smartphone'}
+                                onChange={(e) => setSelectedFormat(e.target.value)}
+                                className="w-4 h-4 text-blue-600"
+                            />
+                            <span className="text-sm text-gray-700">📱 Smartphone</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="format"
+                                value="tablet"
+                                checked={selectedFormat === 'tablet'}
+                                onChange={(e) => setSelectedFormat(e.target.value)}
+                                className="w-4 h-4 text-blue-600"
+                            />
+                            <span className="text-sm text-gray-700">📱 Tablet</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="format"
+                                value="desktop"
+                                checked={selectedFormat === 'desktop'}
+                                onChange={(e) => setSelectedFormat(e.target.value)}
+                                className="w-4 h-4 text-blue-600"
+                            />
+                            <span className="text-sm text-gray-700">💻 Desktop</span>
+                        </label>
+                    </div>
+                </div>
+
+                {/* Preview content (Container + Interface in preview mode) */}
+                <div className="p-4" style={{ height: 'calc(90vh - 200px)' }}>
+                    <div 
+                        className="border-2 border-gray-300 rounded-lg overflow-hidden mx-auto"
+                        style={{
+                            width: formatSizes[selectedFormat as keyof typeof formatSizes].width,
+                            height: '100%',
+                            maxWidth: '100%'
+                        }}
+                    >
+                    <iframe
+                      key={iframeKey}
+                      src={previewUrl}
+                      title="Vista previa"
+                      className="w-full h-full"
+                      style={{ border: '0' }}
+                    />
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     );
-  }
+}

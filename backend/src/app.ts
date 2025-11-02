@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import menuRoutes from "./routes/menu.js";
 import authRoutes from "./routes/auth.js";
 import restoRoutes from "./routes/resto.js";
+import macrosRoutes from "./routes/macros.js";
+import mediaRoutes from "./routes/media.js";
 import bodyParser from 'body-parser';
 
 dotenv.config();
@@ -22,5 +24,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use("/menu", menuRoutes);
 app.use("/auth", authRoutes);
 app.use("/resto", restoRoutes);
+app.use("/macros", macrosRoutes);
+app.use("/media", mediaRoutes);
 
 export default app;

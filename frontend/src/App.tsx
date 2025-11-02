@@ -11,6 +11,7 @@ import { RestoProvider } from './contexts/RestoContext';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { PublicProvider } from './contexts/PublicContext.tsx';
 
+import * as AppCSS from './App.css';
 
 
 const AppContent: React.FC = () => {
@@ -23,8 +24,11 @@ const AppContent: React.FC = () => {
                 <Routes>
                   <Route index path="/" element={<LandingPage/>} />
                   <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/app/:slug" element={<Container mode="public"  />} >
-                    <Route index element={<Interface mode="public" />} />
+                  <Route path="/app/:slug" element={<Container mode="public"/>} >
+                    <Route index element={<Interface mode="public"/>} />
+                  </Route>
+                  <Route path="/preview/:slug" element={<Container mode="preview"/>} >
+                    <Route index element={<Interface mode="preview"/>} />
                   </Route>
                 </Routes>
               </div>

@@ -9,9 +9,10 @@ import { ItemModal } from './modal.component';
 import { optionsConfig } from './macros';
 import { categorySectionStyles } from './customStyles';
 import type { Dish ,Config,Style } from '../types';
+import { getDishImageUrl } from '../services/media';
 
-export function CategorySection({categoryName,categoryObject,sizeClass}:any) {
-    const {resto} = useResto();
+export function CategorySection({categoryName,categoryObject,sizeClass,resto}:any) {
+
     const [option, setOption] = useState<Config | undefined>();
     const [style, setStyle] = useState<Style | undefined>();
 
@@ -57,9 +58,9 @@ export function CategorySection({categoryName,categoryObject,sizeClass}:any) {
                                 (<li
                                     key={index}
                                     className={"flex justify-between align-middle gap-4 py-4 px-2 border-b last:border-b-0 border-b-gray-400 "+ (option?.optionsConfig.enableItemModals && " " && style?.categorySectionStyles.itemHover)  }
-                                    onClick={(() => option?.optionsConfig.enableItemModals && item.image &&  
+                                    onClick={(() => option?.optionsConfig.enableItemModals && item.image?.secure_url &&  
                                                     setModalData({
-                                                        image: `/assets/menu-fotos/${item.image}`,
+                                                        image: getDishImageUrl(item.image, 1000),
                                                         category: categoryObject.name,
                                                         title: item.title,
                                                         description: item.description,
@@ -76,9 +77,9 @@ export function CategorySection({categoryName,categoryObject,sizeClass}:any) {
                                         <div className='featuredText' style={{color:item['featuredTextColor']||'#0f0'}}>{item['featuredText']}</div>
                                     )}
                                     
-                                    {item.image && (
+                                    {item.image?.secure_url && (
                                         <img
-                                        src={"/assets/menu-fotos/"+item.image}
+                                        src={getDishImageUrl(item.image, 240)}
                                         alt={item.title}
                                         className="w-20 h-20 object-cover rounded-md m-auto"
                                         />
@@ -153,9 +154,9 @@ export function CategorySection({categoryName,categoryObject,sizeClass}:any) {
                             (<li
                                 key={index}
                                 className={"flex justify-between align-middle gap-4 py-4 px-2 border-b last:border-b-0 border-b-gray-400 "+ (optionsConfig.enableItemModals && " " && categorySectionStyles.itemHover)  }
-                                onClick={(() => optionsConfig.enableItemModals && item.image &&  
+                                onClick={(() => optionsConfig.enableItemModals && item.image?.secure_url &&  
                                                 setModalData({
-                                                    image: "/assets/menu-fotos/" + item.image,
+                                                    image: getDishImageUrl(item.image, 1000),
                                                     category: category,
                                                     title: item.title,
                                                     description: item.description,
@@ -171,9 +172,9 @@ export function CategorySection({categoryName,categoryObject,sizeClass}:any) {
                                 {(item['featuredText'] && 
                                 <div className='featuredText' style={{color:item['featuredTextColor']||'#0f0'}}>{item['featuredText']}</div>
                                 )}
-                                {item.image && (
+                                {item.image?.secure_url && (
                                 <img
-                                    src={"./assets/menu-fotos/"+item.image}
+                                    src={getDishImageUrl(item.image, 240)}
                                     alt={item.title}
                                     className="w-20 h-20 object-cover rounded-md m-auto"
                                 />

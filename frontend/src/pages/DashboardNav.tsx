@@ -12,12 +12,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useResto } from "../contexts/RestoContext"; 
+import { getDishImageUrl } from "../services/media";
 
 export default function DashboardNav({ active, onChange }:any) {
   const [open, setOpen] = useState(false);
 
   
-  const {btnSaveEnabled,setBtnSaveEnabled} = useResto();
+  const {btnSaveEnabled,setBtnSaveEnabled, resto} = useResto();
 
   const items = [
     { id: "home", label: "Home", icon: <LayoutGrid size={20} /> },
@@ -47,8 +48,18 @@ export default function DashboardNav({ active, onChange }:any) {
         lg:translate-x-0 transition-transform duration-200`}
       >
         <div className="flex flex-col items-center py-6">
-          <div className="h-20 w-32 bg-gray-200 rounded flex items-center justify-center">
-            Logo
+          <div className="h-full w-32 rounded flex items-center justify-center bg-white">
+            {resto?.config?.srcImgLogo?.secure_url ? (
+              <img
+                src={getDishImageUrl(resto.config.srcImgLogo, 256)}
+                alt="Logo"
+                className="max-h-full max-w-32 object-contain"
+              />
+            ) : (
+              <div className="h-20 w-32 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
+                Sin logo
+              </div>
+            )}
           </div>
         </div>
 

@@ -6,7 +6,7 @@ import React, {
     type ReactNode,
   } from "react";
 
-import { type Resto,type RestoContextType } from "../types/index";
+import { type Resto,type RestoContextType, type StyleOptionsMap } from "../types/index";
 import { restoService } from "../services/resto";
 
 const RestoContext = createContext<RestoContextType | undefined>(undefined);
@@ -33,6 +33,11 @@ export const useResto = (): RestoContextType => {
     const [btnSaveEnabled, setBtnSaveEnabled] = useState(false);
 
 
+    const getStylesOptions = async (): Promise<StyleOptionsMap | null> => {
+        const res = await restoService.getOptionStyles();
+        return res as StyleOptionsMap | null;
+    };
+
     
     const getResto = async ( ) => {
         const res = await restoService.getRestoById(id);
@@ -51,7 +56,7 @@ export const useResto = (): RestoContextType => {
     }
 
     return (
-        <RestoContext.Provider value={{ resto, setResto, isLoading, slug,setSlug, updateResto,getResto,id,setId,btnSaveEnabled, setBtnSaveEnabled,restoPreview,setRestoPreview }}>
+        <RestoContext.Provider value={{ resto, setResto, isLoading, slug,setSlug, updateResto,getResto,id,setId,btnSaveEnabled, setBtnSaveEnabled,restoPreview,setRestoPreview, getStylesOptions }}>
             {children}
         </RestoContext.Provider>
     );
