@@ -7,10 +7,6 @@ import { ItemModal } from './modal.component';
 import type { Category, Config, Dish ,Resto, Style , MDC} from '../types';
 import { getDishImageUrl } from '../services/media';
 
-// Importing data configuration
-import { optionsConfig } from './macros';
-import { principalSectionStyles } from './customStyles';
-
 interface PrincipalSectionProps {
   resto: Resto | null;
 }

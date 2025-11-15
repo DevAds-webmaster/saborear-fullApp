@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useResto } from "../../contexts/RestoContext";
-import type { Resto, StyleOptionsMap } from "../../types/index";
+import type { Resto, StyleOptionsMap, Config } from "../../types/index";
 
 interface VisualSectionProps {
   resto: Resto | null;
@@ -11,6 +11,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
   const { btnSaveEnabled, setBtnSaveEnabled, restoPreview, setRestoPreview, getStylesOptions } = useResto();
 
   const [localStyle, setLocalStyle] = useState<any>(resto?.style || {});
+  const [localConfig, setLocalConfig] = useState<Config | undefined>(resto?.config);
   const [options, setOptions] = useState<StyleOptionsMap | null>(null);
   const [optionsLoading, setOptionsLoading] = useState<boolean>(false);
   const [optionsError, setOptionsError] = useState<string | null>(null);
@@ -22,6 +23,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
         setOptionsLoading(true);
         setOptionsError(null);
         const res = await getStylesOptions();
+        console.log('res',res)
         setOptions(res || null);
       } catch (e) {
         setOptionsError('No se pudieron cargar las opciones de estilos');
@@ -35,22 +37,24 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
   // Inicializar localStyle cuando cambie resto
   useEffect(() => {
     setLocalStyle(resto?.style || {});
+    setLocalConfig(resto?.config);
   }, [resto]);
 
-  // Actualizar preview cuando cambie localStyle
+  // Actualizar preview y habilitar botón cuando cambien style o config
   useEffect(() => {
-    if (restoPreview) {
-      setRestoPreview({ ...restoPreview, style: localStyle });
-    }
+    if (!resto) return;
+    const nextPreview = {
+      ...(restoPreview || resto),
+      style: localStyle,
+      config: (localConfig || resto.config) as Config,
+    } as Resto;
+    setRestoPreview(nextPreview);
 
-    // controlar habilitación de botón guardar
-    if (resto && JSON.stringify(localStyle) !== JSON.stringify(resto.style)) {
-      setBtnSaveEnabled(true);
-    } else {
-      setBtnSaveEnabled(false);
-    }
+    const base = JSON.stringify({ style: resto.style, config: resto.config });
+    const next = JSON.stringify({ style: localStyle, config: localConfig || resto.config });
+    setBtnSaveEnabled(base !== next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localStyle]);
+  }, [localStyle, localConfig]);
 
 
   useEffect(()=>{
@@ -90,6 +94,15 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
 
   const handleSelectChange = (key: string, value: string) => {
     setLocalStyle((prev: any) => setNested(prev || {}, key, value));
+  };
+
+  // Helpers para Config (checkbox e input)
+  const handleConfigToggle = (key: string, checked: boolean) => {
+    setLocalConfig((prev: any) => setNested(prev || {}, key, checked) as Config);
+  };
+
+  const handleConfigInput = (key: string, value: string) => {
+    setLocalConfig((prev: any) => setNested(prev || {}, key, value) as Config);
   };
 
   const handleReset = () => {
@@ -168,6 +181,160 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
           </div>
         </section>
 
+        {/* Redes Sociales */}
+        <section>
+          <h2 className="text-lg font-semibold">Redes sociales</h2>
+          <p className="text-sm text-gray-500">Habilita los botones y define el enlace/alias para cada red.</p>
+          <div className="mt-3 grid md:grid-cols-2 gap-4">
+            {/* Header redes */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-medium mb-2">Header</h3>
+              <div className="space-y-3">
+                {/* Facebook */}
+                <div className="grid grid-cols-2 gap-2 items-center">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={!!getNested(localConfig, 'headerOptions.enableFacebookBtn')}
+                      onChange={(e) => handleConfigToggle('headerOptions.enableFacebookBtn', e.target.checked)}
+                    />
+                    Facebook
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border rounded px-2 py-1 text-sm"
+                    placeholder="https://facebook.com/mi-pagina"
+                    value={getNested(localConfig, 'headerOptions.enableFacebookLink') || ''}
+                    onChange={(e) => handleConfigInput('headerOptions.enableFacebookLink', e.target.value)}
+                  />
+                </div>
+
+                {/* Instagram */}
+                <div className="grid grid-cols-2 gap-2 items-center">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={!!getNested(localConfig, 'headerOptions.enableInstagramBtn')}
+                      onChange={(e) => handleConfigToggle('headerOptions.enableInstagramBtn', e.target.checked)}
+                    />
+                    Instagram
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border rounded px-2 py-1 text-sm"
+                    placeholder="https://instagram.com/mi-pagina"
+                    value={getNested(localConfig, 'headerOptions.enableInstagramLink') || ''}
+                    onChange={(e) => handleConfigInput('headerOptions.enableInstagramLink', e.target.value)}
+                  />
+                </div>
+
+                {/* X / Twitter */}
+                <div className="grid grid-cols-2 gap-2 items-center">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={!!getNested(localConfig, 'headerOptions.enableXBtn')}
+                      onChange={(e) => handleConfigToggle('headerOptions.enableXBtn', e.target.checked)}
+                    />
+                    X (Twitter)
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border rounded px-2 py-1 text-sm"
+                    placeholder="https://x.com/mi-pagina"
+                    value={getNested(localConfig, 'headerOptions.enableXLink') || ''}
+                    onChange={(e) => handleConfigInput('headerOptions.enableXLink', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Footer redes */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-medium mb-2">Footer</h3>
+              <div className="space-y-3">
+                {/* Facebook */}
+                <div className="grid grid-cols-2 gap-2 items-center">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={!!getNested(localConfig, 'footerOptions.enableFacebookBtn')}
+                      onChange={(e) => handleConfigToggle('footerOptions.enableFacebookBtn', e.target.checked)}
+                    />
+                    Facebook
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border rounded px-2 py-1 text-sm"
+                    placeholder="Alias o texto del enlace"
+                    value={getNested(localConfig, 'footerOptions.FacebookAlias') || ''}
+                    onChange={(e) => handleConfigInput('footerOptions.FacebookAlias', e.target.value)}
+                  />
+                </div>
+
+                {/* Instagram */}
+                <div className="grid grid-cols-2 gap-2 items-center">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={!!getNested(localConfig, 'footerOptions.enableInstagramBtn')}
+                      onChange={(e) => handleConfigToggle('footerOptions.enableInstagramBtn', e.target.checked)}
+                    />
+                    Instagram
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border rounded px-2 py-1 text-sm"
+                    placeholder="Alias o texto del enlace"
+                    value={getNested(localConfig, 'footerOptions.InstagramAlias') || ''}
+                    onChange={(e) => handleConfigInput('footerOptions.InstagramAlias', e.target.value)}
+                  />
+                </div>
+
+                {/* X / Twitter */}
+                <div className="grid grid-cols-2 gap-2 items-center">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={!!getNested(localConfig, 'footerOptions.enableXBtn')}
+                      onChange={(e) => handleConfigToggle('footerOptions.enableXBtn', e.target.checked)}
+                    />
+                    X (Twitter)
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border rounded px-2 py-1 text-sm"
+                    placeholder="Alias o texto del enlace"
+                    value={getNested(localConfig, 'footerOptions.XAlias') || ''}
+                    onChange={(e) => handleConfigInput('footerOptions.XAlias', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Principal Section */}
+        <section>
+          <h2 className="text-lg font-semibold">Sección Principal</h2>
+          <p className="text-sm text-gray-500">Estilos para la sección principal del menú.</p>
+          <div className="mt-2 grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm">Contenedor</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'principalSectionStyles.container') || ''}
+                onChange={(e) => handleSelectChange('principalSectionStyles.container', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['principalSection.container']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </section>
+
         {/* Category Section */}
         <section>
           <h2 className="text-lg font-semibold">Sección de Categorías</h2>
@@ -200,27 +367,49 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
                 ))}
               </select>
             </div>
-          </div>
-        </section>
 
-        {/* Principal Section */}
-        <section>
-          <h2 className="text-lg font-semibold">Sección Principal</h2>
-          <p className="text-sm text-gray-500">Estilos para la sección principal del menú.</p>
-          <div className="mt-2 grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm">Contenedor</label>
+              <label className="block text-sm">Descripción</label>
               <select
                 className="mt-1 w-full p-2 border rounded"
-                value={getNested(localStyle, 'principalSectionStyles.container') || ''}
-                onChange={(e) => handleSelectChange('principalSectionStyles.container', e.target.value)}
+                value={getNested(localStyle, 'categorySectionStyles.descriptionText') || ''}
+                onChange={(e) => handleSelectChange('categorySectionStyles.descriptionText', e.target.value)}
               >
                 <option value="">-- seleccionar --</option>
-                {options?.['principalSection.container']?.map((o) => (
+                {options?.['categorySection.descriptionText']?.map((o) => (
                   <option key={o.id} value={o.value}>{o.label}</option>
                 ))}
               </select>
             </div>
+
+            <div>
+              <label className="block text-sm">Título del ítem</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'categorySectionStyles.itemTitle') || ''}
+                onChange={(e) => handleSelectChange('categorySectionStyles.itemTitle', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['categorySection.itemTitle']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm">Descripción del ítem</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'categorySectionStyles.itemDescription') || ''}
+                onChange={(e) => handleSelectChange('categorySectionStyles.itemDescription', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['categorySection.itemDescription']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+
           </div>
         </section>
 

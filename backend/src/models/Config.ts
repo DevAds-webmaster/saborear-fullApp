@@ -50,6 +50,13 @@ export interface IConfig {
         height?: number;
         format?: string;
     };
+    srcImgLogoDashboard : {
+        secure_url: string;
+        public_id: string;
+        width?: number;
+        height?: number;
+        format?: string;
+    };
   }
 
   export interface IOpDspCommercial {
@@ -109,6 +116,13 @@ export const configSchema = new Schema<IConfig>({
         format: { type: String, required: false }
     },
     srcImgLogo : {
+        secure_url: { type: String, required: true },
+        public_id: { type: String, required: true },
+        width: { type: Number, required: false },
+        height: { type: Number, required: false },
+        format: { type: String, required: false }
+    },
+    srcImgLogoDashboard : {
         secure_url: { type: String, required: true },
         public_id: { type: String, required: true },
         width: { type: Number, required: false },

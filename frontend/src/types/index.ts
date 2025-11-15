@@ -76,6 +76,8 @@ export interface Style {
       descriptionText: string;
       descriptionBorder: string;
       itemsText: string;
+      itemTitle: string;
+      itemDescription: string;
       itemHover: string;
       tagsTextColor: string;
   };
@@ -164,6 +166,7 @@ export interface Config {
   paramModalsDelay : number;
   srcImgBackground : SignedImage;
   srcImgLogo : SignedImage;
+  srcImgLogoDashboard : SignedImage;
 }
 
 export interface OpDspCommercial {

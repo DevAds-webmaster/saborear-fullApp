@@ -88,12 +88,12 @@ function Dashboard (){
         return <Login/>;
 
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-gray-50 overflow-hidden">
           {/* Sidebar */}
           <DashboardNav active={currentView} onChange={setCurrentView} />
     
           {/* Main content */}
-          <main className="flex-1 p-6 overflow-y-auto">
+          <main className="flex-1 h-full p-6 overflow-y-auto">
             {/*Top Bar*/}
             <TopBar/>
             {renderSection()}

@@ -78,6 +78,24 @@ export default function Container ({mode,children}:any) {
             setStyle(resto?.style);
         }
     },[resto, restoPreview]);
+
+    // Escucha mensajes del padre (TopBar -> iframe) para actualizar preview en vivo
+    useEffect(() => {
+        if (mode !== 'preview') return;
+        const handler = (ev: MessageEvent) => {
+            // Asegura mismo origen; ajusta si usas otro dominio en desarrollo
+            if (ev.origin !== window.location.origin) return;
+            const payload = (ev as MessageEvent<any>).data;
+            if (payload?.type === 'preview:update') {
+                const next = payload.data;
+                try { localStorage.setItem('saborear_preview', JSON.stringify(next)); } catch {}
+                setRestoPreview(next);
+                setPublicResto(next);
+            }
+        };
+        window.addEventListener('message', handler);
+        return () => window.removeEventListener('message', handler);
+    }, [mode, setRestoPreview, setPublicResto]);
     
     useEffect(() => {
         const url = option?.srcImgBackground ? getDishImageUrl(option.srcImgBackground, 1600) : undefined;

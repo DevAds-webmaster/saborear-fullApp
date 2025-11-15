@@ -57,8 +57,8 @@ function PreviewModal({ open, onClose }: any) {
   const [selectedFormat, setSelectedFormat] = useState('smartphone');
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [iframeKey, setIframeKey] = useState(0);
   const modalRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const {restoPreview} = useResto();
 
   const formatSizes = {
@@ -94,17 +94,34 @@ function PreviewModal({ open, onClose }: any) {
     };
   }, [isDragging, dragOffset]);
 
-  // Sync preview data to localStorage so the iframe (new app instance) can consume it
+  // Sincroniza datos de preview: guarda en localStorage y envía por postMessage sin recargar el iframe
   useEffect(() => {
     if (open && restoPreview) {
       try {
         localStorage.setItem('saborear_preview', JSON.stringify(restoPreview));
       } catch {}
-      setIframeKey((k) => k + 1);
+      // Intentar enviar actualización en vivo al iframe
+      try {
+        iframeRef.current?.contentWindow?.postMessage(
+          { type: 'preview:update', data: restoPreview },
+          window.location.origin
+        );
+      } catch {}
     }
   }, [open, restoPreview]);
 
-  const previewUrl = `/preview/${restoPreview?.slug || ''}?v=${iframeKey}`;
+  // Al cargar el iframe, enviar el estado actual para asegurar sincronización inicial
+  const handleIframeLoad = () => {
+    if (!restoPreview) return;
+    try {
+      iframeRef.current?.contentWindow?.postMessage(
+        { type: 'preview:update', data: restoPreview },
+        window.location.origin
+      );
+    } catch {}
+  };
+
+  const previewUrl = `/preview/${restoPreview?.slug || ''}`;
 
   if (!open) return null; 
  
@@ -197,11 +214,12 @@ function PreviewModal({ open, onClose }: any) {
                         }}
                     >
                     <iframe
-                      key={iframeKey}
+                      ref={iframeRef}
                       src={previewUrl}
                       title="Vista previa"
                       className="w-full h-full"
                       style={{ border: '0' }}
+                      onLoad={handleIframeLoad}
                     />
                     </div>
                 </div>
