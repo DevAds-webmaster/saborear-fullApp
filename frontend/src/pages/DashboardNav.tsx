@@ -4,6 +4,7 @@ import {
   PaintRoller,
   DollarSign,
   BarChart3,
+  ShoppingCart,
   Menu,
   LogOut,
   Bolt ,
@@ -28,8 +29,9 @@ export default function DashboardNav({ active, onChange }:any) {
     { id: "home", label: "Home", icon: <LayoutGrid size={20} /> },
     { id: "menu", label: "Gestión de Menú", icon: <Soup  size={20} /> },
     { id: "visual", label: "Personalización Visual", icon: <PaintRoller size={20} /> },
+    { id: "cart", label: "Gestión de Carrito", icon: <ShoppingCart size={20} /> },
     { id: "payments", label: "Suscripción y Pagos", icon: <DollarSign size={20} /> },
-    { id: "stats", label: "Estadísticas", icon: <BarChart3 size={20} /> },
+    //{ id: "stats", label: "Estadísticas", icon: <BarChart3 size={20} /> },
     { id: "config", label: "Configuracion", icon: <Bolt  size={20} /> },
   ];
 
@@ -90,7 +92,7 @@ export default function DashboardNav({ active, onChange }:any) {
       {/* Mobile button */}
       {!open && (
         <button
-          className="lg:hidden p-3 absolute top-4 left-4 bg-gray-200 rounded-md z-30"
+          className="lg:hidden p-3 absolute top-4 left-4 bg-gray-200 rounded-md z-50 shadow-lg hover:shadow-xl shadow-gray-400"
           onClick={() => setOpen(!open)}
         >
           <Menu />
@@ -100,14 +102,14 @@ export default function DashboardNav({ active, onChange }:any) {
       {/* Overlay oscuro al 50% - solo visible en mobile cuando el menú está abierto */}
       {open && (
         <div
-          className="fixed inset-0 bg-black/50 z-10 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-50 lg:hidden"
           onClick={() => setOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static z-20 h-full w-64 bg-white shadow-lg transform 
+        className={`fixed lg:static z-50 lg:z-auto h-full w-64 bg-white shadow-lg transform 
         ${open ? "translate-x-0" : "-translate-x-full"} 
         lg:translate-x-0 transition-transform duration-200 flex flex-col`}
       >

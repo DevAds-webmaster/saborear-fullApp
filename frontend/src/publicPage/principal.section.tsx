@@ -6,13 +6,16 @@ import { ItemModal } from './modal.component';
 
 import type { Category, Config, Dish ,Resto, Style , MDC} from '../types';
 import { getDishImageUrl } from '../services/media';
+import { addToCart, loadCart, saveCart } from '../utils/cart';
+import { SquarePlus } from 'lucide-react';
 
 interface PrincipalSectionProps {
   resto: Resto | null;
+  cart?: boolean;
 }
 
 
-export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => {
+export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto, cart }) => {
 
 
     const [option, setOption] = useState<Config | undefined>();
@@ -49,7 +52,7 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => 
 
     
     return(
-        <section key="menu-dia" className= {"py-4 m-4 "+style?.principalSectionStyles.container}>
+        <section key="menu-dia" className= {"py-4 mx-4 mt-4 "+style?.principalSectionStyles.container}>
           <h2 className={"mb-4 text-center "+(style?.principalSectionStyles.title)}>{menuDayConfig?.titleCat}</h2>
 
           
@@ -70,7 +73,7 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => 
           
               
 
-          <ul className={"grid grid-cols-1 lg:grid-cols-2 gap-6 py-4 sm:px-4 "+style?.principalSectionStyles.itemsText}> 
+          <ul className={"grid grid-cols-1 lg:grid-cols-2 gap-6 py-4 sm:px-4 "}> 
           {  menuDia?.map((dish,index) => 
               (
 
@@ -99,7 +102,7 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => 
                   {dish.image?.secure_url && (
                   <img src={getDishImageUrl(dish.image, 240)} alt={dish.title} className="w-20 h-30 object-cover rounded-md place-self-center" />
                   )}
-                  <div className="flex-1">
+                  <div className={"flex-1 "+style?.principalSectionStyles.itemsText}>
                    
                     <div className="flex flex-row justify-end">  
                      
@@ -119,7 +122,6 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => 
                       <></>
                     }<div className="flex flex-row ">
                       
-
                           {dish.discountPrice ? (
                             <>
                               <div className="ml-auto line-through text-gray-500 mr-2">
@@ -133,6 +135,31 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => 
                             <div className="ml-auto font-semibold">
                               ${dish.price.toFixed(2)}
                             </div>
+                          )}
+                          {cart && (
+                            <button
+                              type="button"
+                              className="ml-2 text-emerald-600 hover:text-emerald-700"
+                              title="Agregar al carrito"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const slug = resto?.slug || '';
+                                const c = loadCart(slug);
+                                const next = addToCart(c, dish, 1);
+                                saveCart(slug, next);
+                                try { window.dispatchEvent(new Event('cart:updated')); } catch {}
+                                const btn = (e.currentTarget as HTMLButtonElement);
+                                btn.classList.add('shake-blink');
+                                setTimeout(() => btn.classList.remove('shake-blink'), 1000);
+                                const btnCart = document.getElementById('btn-cart');
+                                if (btnCart) {
+                                  btnCart.classList.add('shake-blink-cart');
+                                  setTimeout(() => btnCart.classList.remove('shake-blink-cart'), 1000);
+                                }
+                              }}
+                            >
+                              <SquarePlus size={22} />
+                            </button>
                           )}
                     </div>
                   </div>

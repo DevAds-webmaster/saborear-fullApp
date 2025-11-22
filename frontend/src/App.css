@@ -72,4 +72,41 @@ animation: eggRst 1s ease-out infinite;
   0%{  transform: rotate(-5deg)  }
   100%{  transform: rotate(10deg)  }
 }
+
+/* Animación de sacudida y parpadeo para botones */
+.shake-blink {
+  animation: btn-shake 0.4s ease-in-out 2, btn-blink 1s linear 1;
+}
+
+@keyframes btn-shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes btn-blink {
+  0%, 100% { filter: none; }
+  50% { filter: brightness(1.6); }
+}
+
+
+/* Animación de sacudida y parpadeo para botones */
+.shake-blink-cart {
+  animation: btn-shake-cart 0.4s ease-in-out 2, btn-blink-cart 1s linear 1;
+}
+
+@keyframes btn-shake-cart {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-30px); }
+  50% { transform: translateY(0px); }
+  75% { transform: translateY(-20px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes btn-blink-cart {
+  0%, 100% { filter: none; }
+  50% { filter: brightness(1.6); }
+}
   

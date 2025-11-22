@@ -9,7 +9,7 @@ import { useResto } from '../contexts/RestoContext';
 import { useEffect } from 'react';
 
 
-function Interface({mode}:any) {
+function Interface({mode, cart}:any) {
   const {resto: publicResto} = usePublic();
   const {restoPreview} = useResto();
   
@@ -25,10 +25,10 @@ function Interface({mode}:any) {
   return (
     <>
       {/* seccion principal */}
-      <PrincipalSection resto={currentResto} />
+      <PrincipalSection resto={currentResto} cart={cart} />
 
       {/* seccion por categorias */}
-      <CategoriesLayout resto={currentResto} />
+      <CategoriesLayout resto={currentResto} cart={cart} />
     </>
     
   );

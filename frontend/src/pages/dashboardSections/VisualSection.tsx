@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useResto } from "../../contexts/RestoContext";
-import type { Resto, StyleOptionsMap, Config } from "../../types/index";
+import type { Resto, StyleOptionsMap, Config, ThemeOptions } from "../../types/index";
 
 interface VisualSectionProps {
   resto: Resto | null;
@@ -8,13 +8,17 @@ interface VisualSectionProps {
 }
 
 export default function VisualSection({ resto, updateResto }: VisualSectionProps) {
-  const { btnSaveEnabled, setBtnSaveEnabled, restoPreview, setRestoPreview, getStylesOptions } = useResto();
+  const { btnSaveEnabled, setBtnSaveEnabled, restoPreview, setRestoPreview, getStylesOptions ,getThemeOptions} = useResto();
 
   const [localStyle, setLocalStyle] = useState<any>(resto?.style || {});
   const [localConfig, setLocalConfig] = useState<Config | undefined>(resto?.config);
   const [options, setOptions] = useState<StyleOptionsMap | null>(null);
+  const [themeOptions, setThemeOptions] = useState<ThemeOptions | null>(null);
   const [optionsLoading, setOptionsLoading] = useState<boolean>(false);
+  const [themeOptionsLoading, setThemeOptionsLoading] = useState<boolean>(false);
+  const [themeOptionsError, setThemeOptionsError] = useState<string | null>(null);
   const [optionsError, setOptionsError] = useState<string | null>(null);
+  const [selectedThemeId, setSelectedThemeId] = useState<string>("");
 
   // Cargar opciones desde backend
   useEffect(() => {
@@ -32,6 +36,23 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
       }
     };
     fetchOptions();
+  }, []);
+
+  // Cargar theme options
+  useEffect(() => {
+    const fetchThemeOptions = async () => {
+      try {
+        setThemeOptionsLoading(true);
+        setThemeOptionsError(null);
+        const res = await getThemeOptions();
+        setThemeOptions(res || null);
+      } catch (e) {
+        setThemeOptionsError('No se pudieron cargar los temas por defecto');
+      } finally {
+        setThemeOptionsLoading(false);
+      }
+    };
+    fetchThemeOptions();
   }, []);
 
   // Inicializar localStyle cuando cambie resto
@@ -76,6 +97,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
     return path.split('.').reduce((acc, key) => (acc ? acc[key] : undefined), obj);
   };
 
+  // Funcion para setear un valor en un objeto anidado
   const setNested = (obj: any, path: string, value: any) => {
     const keys = path.split('.');
     const newObj = { ...obj };
@@ -108,6 +130,44 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
   const handleReset = () => {
     const res = confirm("Se reestablecerán los valores al último estado guardado.");
     if (res) setLocalStyle(resto.style || {});
+  };
+
+  const keyMap: Record<string, string> = {
+    "header.container": "headerStyles.container",
+    "header.sloganStyle": "headerStyles.sloganStyle",
+    "categorySection.container": "categorySectionStyles.container",
+    "categorySection.descriptionText": "categorySectionStyles.descriptionText",
+    "categorySection.itemTitle": "categorySectionStyles.itemTitle",
+    "categorySection.itemDescription": "categorySectionStyles.itemDescription",
+    "categorySection.title": "categorySectionStyles.title",
+    "principalSection.container": "principalSectionStyles.container",
+    "principalSection.itemContainer": "principalSectionStyles.itemContainer",
+    "principalSection.title": "principalSectionStyles.title",
+    "principalSection.descriptionText": "principalSectionStyles.descriptionText",
+    "principalSection.itemsText": "principalSectionStyles.itemsText",
+    "modalsItems.container": "modalsItemsStyles.container",
+    "modalsItems.textColor": "modalsItemsStyles.textColor",
+    "displayDePaso.container": "displayDePasoStyles.container",
+    "displayComercial.template": "displayComercialStylesTemplate",
+  };
+
+  const applyTheme = (themeId: string) => {
+    if (!themeOptions?.options) return;
+    const theme = themeOptions.options.find(t => t.id === themeId);
+    if (!theme) return;
+    setLocalStyle((prev: any) => {
+      let next = { ...(prev || {}) };
+      Object.entries(theme.data).forEach(([k, v]) => {
+        const mapped = keyMap[k];
+        if (mapped) {
+          const value = options?.[k]?.find(prop => prop.id === v);
+          if (value) {
+            next = setNested(next, mapped, value.value);
+          }
+        }
+      });
+      return next;
+    });
   };
 
   const handleSave = async () => {
@@ -143,6 +203,29 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
         >
           Guardar Cambios
         </button>
+      </div>
+
+      {/* Temas por defecto */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-1">Temas Por Defecto :</label>
+        <div className="flex items-center gap-3">
+          <select
+            className="mt-1 w-80 p-2 border rounded"
+            value={selectedThemeId}
+            onChange={(e) => {
+              const id = e.target.value;
+              setSelectedThemeId(id);
+              if (id) applyTheme(id);
+            }}
+          >
+            <option value="">-- seleccionar tema --</option>
+            {themeOptions?.options?.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+          {themeOptionsLoading && <span className="text-sm text-gray-500">Cargando temas…</span>}
+          {themeOptionsError && <span className="text-sm text-red-600">{themeOptionsError}</span>}
+        </div>
       </div>
 
       <div className="space-y-6 border p-5 rounded-lg">
@@ -332,6 +415,62 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
                 ))}
               </select>
             </div>
+            
+            <div>
+              <label className="block text-sm">Contenedor Items</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'principalSectionStyles.itemContainer') || ''}
+                onChange={(e) => handleSelectChange('principalSectionStyles.itemContainer', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['principalSection.itemContainer']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div> 
+
+            <div>
+              <label className="block text-sm">Titulo</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'principalSectionStyles.title') || ''}
+                onChange={(e) => handleSelectChange('principalSectionStyles.title', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['principalSection.title']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm">Descripción</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'principalSectionStyles.descriptionText') || ''}
+                onChange={(e) => handleSelectChange('principalSectionStyles.descriptionText', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['principalSection.descriptionText']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm">Texto Items</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'principalSectionStyles.itemsText') || ''}
+                onChange={(e) => handleSelectChange('principalSectionStyles.itemsText', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['principalSection.itemsText']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </section>
 
@@ -427,6 +566,19 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
               >
                 <option value="">-- seleccionar --</option>
                 {options?.['modalsItems.container']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm">Texto modal</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'modalsItemsStyles.textColor') || ''}
+                onChange={(e) => handleSelectChange('modalsItemsStyles.textColor', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['modalsItems.textColor']?.map((o) => (
                   <option key={o.id} value={o.value}>{o.label}</option>
                 ))}
               </select>

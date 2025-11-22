@@ -8,14 +8,15 @@ import TopBar from "./TopBar"
 import HomeSection from "./dashboardSections/HomeSection";
 import MenuSection from "./dashboardSections/MenuSection";
 import VisualSection from "./dashboardSections/VisualSection";
+import CartSection from "./dashboardSections/CartSection.tsx";
+import ConfigSection from "./dashboardSections/ConfigSection.tsx";
 import PaymentsSection from "./dashboardSections/PaymentsSection";
 import StatsSection from "./dashboardSections/StatsSection";
-import ConfigSection from "./dashboardSections/ConfigSection.tsx";
 import { useAuth } from '../contexts/AuthContext';
 import { useResto } from '../contexts/RestoContext';
 
 function Dashboard (){
-    const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'payments'| 'stats' | 'config'> ('home');
+    const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'cart'| 'payments'| 'stats' | 'config'> ('home');
     const { user, isLoading } = useAuth();
     const {resto ,updateResto ,id, setId,getResto, btnSaveEnabled} = useResto();
     const [userRestos , setUserRestos] = useState<string[]| undefined >([]);
@@ -61,6 +62,8 @@ function Dashboard (){
             return <MenuSection resto={resto} updateResto={updateResto} />;
           case "visual":
             return <VisualSection  resto={resto} updateResto={updateResto} />;
+          case "cart":
+            return <CartSection />;
           case "payments":
             return <PaymentsSection />;
           case "stats":

@@ -1,22 +1,24 @@
 
 import { useResto } from "../contexts/RestoContext";
 import { QRCodeCanvas } from "qrcode.react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Copy as CopyIcon } from "lucide-react";
 import { useReactToPrint } from 'react-to-print';
 
 
-export const QRSection = () =>{
+export const QRSection = ({cart}:{cart:boolean}) =>{
 
     const {resto} = useResto();
     const hostURL = window.location.origin;
     
-    const fullURL = `${hostURL}/app/${resto?.slug}`;
+    const fullURL = `${hostURL}/${cart ? 'menu-cart' : 'menu'}/${resto?.slug}`;
+    const logoUrl = resto?.config?.srcImgLogoDashboard?.secure_url || resto?.config?.srcImgLogo?.secure_url;
 
     const componenteRef = useRef<HTMLDivElement>(null);
     const printRef = useRef<HTMLDivElement>(null);
     const [printModalOpen, setPrintModalOpen] = useState(false);
     const [layout, setLayout] = useState<'1x1' | '2x3'>('1x1');
+    const [withLogo, setWithLogo] = useState<boolean>(false);
     const [copiedToast, setCopiedToast] = useState<string | null>(null);
     const handleCopyUrl = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -36,6 +38,55 @@ export const QRSection = () =>{
         documentTitle: "QRMenu",
       });
 
+    const QRWithOverlay = ({ size }: { size?: number }) => {
+        const wrapperRef = useRef<HTMLDivElement>(null);
+        const [autoSize, setAutoSize] = useState<number>(size ?? 0);
+    
+        useEffect(() => {
+            if (size && size > 0) {
+                setAutoSize(size);
+                return;
+            }
+            const el = wrapperRef.current;
+            if (!el) return;
+            const ro = new ResizeObserver((entries) => {
+                const w = Math.floor(entries[0].contentRect.width);
+                setAutoSize(w);
+            });
+            ro.observe(el);
+            return () => ro.disconnect();
+        }, [size]);
+    
+        const finalSize = size && size > 0 ? size : (autoSize || 100);
+        const overlaySize = Math.round(finalSize * 0.28);
+    
+        return (
+            <div
+                ref={wrapperRef}
+                className="relative inline-block content-center"
+                style={{ width: size && size > 0 ? size : '100%', height: size && size > 0 ? size : '100%' }}
+            >
+                <QRCodeCanvas
+                    value={fullURL}
+                    size={finalSize}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    level="H"
+                    includeMargin={true}
+                    className="cursor-pointer"
+                    onClick={() => window.open(fullURL, "_blank")}
+                />
+                {withLogo && logoUrl && (
+                    <div className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: 'none' }}>
+                        <div style={{ backgroundColor: '#ffffff', borderRadius: 9999, padding: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src={logoUrl} alt="logo" style={{ width: overlaySize - 20, height: overlaySize - 20, objectFit: 'contain', borderRadius: 9999 }} />
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     const closeModalAfterPrint = async () => {
         await handlePrint();
         // pequeño delay para dejar iniciar el diálogo de impresión
@@ -53,23 +104,16 @@ export const QRSection = () =>{
        
     <div className="flex"  >
         <div ref={componenteRef}>
-            <QRCodeCanvas
-                value={fullURL}
-                size={200} // tamaño del QR
-                bgColor="#ffffff"
-                fgColor="#000000"
-                level="H" // nivel de corrección de errores (L, M, Q, H)
-                includeMargin={true}
-                className="cursor-pointer"
-                onClick={() => window.open(fullURL, "_blank")}
-            />
+            <QRWithOverlay size={200} />
         </div>
         <div className="flex flex-col  p-5 justify-center space-y-4">
             <div className="flex border-2 rounded-lg p-2 items-center gap-2">
-                <span className="font-sans italic text-blue-500">URL:&nbsp;&nbsp;</span>
-                <a href={fullURL} onClick={handleCopyUrl} className="flex items-center gap-2 text-blue-600 hover:underline">
-                    <CopyIcon size={16} />
-                    {fullURL}
+                <span className="font-sans italic text-blue-500">Copy URL:&nbsp;&nbsp;</span>
+                <a href={fullURL} onClick={handleCopyUrl} className="flex flex-col md:flex-row items-center gap-2 text-blue-600 hover:underline">
+                    <CopyIcon size={30} />
+                    <span className="break-all">
+                        {fullURL}
+                    </span>
                 </a>
             </div>
             <div>
@@ -99,15 +143,19 @@ export const QRSection = () =>{
                                 <span>1 x 1</span>
                             </label>
                             <label className="flex items-center gap-2">
-                                <input type="radio" name="qr-layout" value="2x6" checked={layout==='2x3'} onChange={() => setLayout('2x3')} />
+                                <input type="radio" name="qr-layout" value="2x3" checked={layout==='2x3'} onChange={() => setLayout('2x3')} />
                                 <span>2 x 3</span>
+                            </label>
+                            <label className="flex items-center gap-2 pt-2">
+                                <input type="checkbox" checked={withLogo} onChange={(e) => setWithLogo(e.target.checked)} />
+                                <span>Logo al centro</span>
                             </label>
                             <div className="text-xs text-gray-500 pt-2">Se imprimirá en tamaño A4 con márgenes moderados.</div>
                         </div>
 
                         <div className="lg:col-span-2" style={{ overflowY: 'auto', height: '70vh' }}>
                             {/* Área imprimible (preview + print target) */}
-                            <div ref={printRef} className="border bg-white mx-auto" style={{ padding: '10mm' }}>
+                            <div ref={printRef} className="border bg-white mx-auto w-full h-full" style={{ padding: '10mm' }}>
                                 {/* Estilo de página para impresión */}
                                 <style>
                                     {`@page { size: A4; width: 210mm; height: 297mm;}`}
@@ -122,15 +170,7 @@ export const QRSection = () =>{
                                         >
                                             {Array.from({ length: total }).map((_, idx) => (
                                                 <div key={idx} className="flex items-center justify-center p-2">
-                                                    <QRCodeCanvas
-                                                        value={fullURL}
-                                                        size={256}
-                                                        bgColor="#ffffff"
-                                                        fgColor="#000000"
-                                                        level="H"
-                                                        includeMargin={true}
-                                                        style={{ width: '100%', height: 'auto' }}
-                                                    />
+                                                    <QRWithOverlay />
                                                 </div>
                                             ))}
                                         </div>

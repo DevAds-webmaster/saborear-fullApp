@@ -24,8 +24,11 @@ const AppContent: React.FC = () => {
                 <Routes>
                   <Route index path="/" element={<LandingPage/>} />
                   <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/app/:slug" element={<Container mode="public"/>} >
-                    <Route index element={<Interface mode="public"/>} />
+                  <Route path="/menu/:slug" element={<Container mode="public" cart={false}/>} >
+                    <Route index element={<Interface mode="public" cart={false}/> } />
+                  </Route>
+                  <Route path="/menu-cart/:slug" element={<Container mode="public" cart={true}/>} >
+                    <Route index element={<Interface mode="public" cart={true}/> } />
                   </Route>
                   <Route path="/preview/:slug" element={<Container mode="preview"/>} >
                     <Route index element={<Interface mode="preview"/>} />

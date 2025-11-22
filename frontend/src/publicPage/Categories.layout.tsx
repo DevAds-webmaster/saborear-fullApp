@@ -10,12 +10,13 @@ import { optionsConfig } from './macros';
 
 interface CategoriesLayoutProps {
   resto: Resto | null;
+  cart?: boolean;
 }
 
 
 
 
-export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto }) => {
+export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto, cart }) => {
 
    // Estado para el modal
    const [modalData, setModalData] = useState<any>(null);
@@ -33,7 +34,7 @@ export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto }) => 
 
 
    return (
-    <div className="flex flex-wrap place-content-center ">
+    <div className="flex flex-wrap place-content-center py-4">
       {
         // Filtrar categorías que no son 'Menu Del Dia', no están vacías y están disponibles
         menu
@@ -69,7 +70,8 @@ export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto }) => 
                 categoryName={categoryName}
                 categoryObject={categoryObject}
                 sizeClass={sizeClass}
-                resto={resto}
+                resto={resto as unknown as Resto}
+                cart={cart}
               />
             );
           })

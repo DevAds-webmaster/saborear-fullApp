@@ -6,6 +6,7 @@ import React, {
   } from "react";
 
 import { type Resto,type PublicContextType } from "../types/index";
+import { buildWhatsAppLinkFromResto } from "../utils/whatsapp";
 
 const PublicContext = createContext<PublicContextType | undefined>(undefined);
 
@@ -28,9 +29,14 @@ export const usePublic = (): PublicContextType => {
     const [slug, setSlug] = useState<string| null>('');
     const [bgImage, setBgImage] = useState<string | undefined>("");
 
- 
-
-
+    const getRestoWhatsAppLink = (message: string): string | null => {
+      if (!resto) return null;
+      try {
+        return buildWhatsAppLinkFromResto(resto, message);
+      } catch {
+        return null;
+      }
+    };
 
     return (
         <PublicContext.Provider 
@@ -41,7 +47,8 @@ export const usePublic = (): PublicContextType => {
                      setSlug,
                      slug,
                      bgImage,
-                     setBgImage}}
+                     setBgImage,
+                     getRestoWhatsAppLink}}
         >
             {children}
         </PublicContext.Provider>

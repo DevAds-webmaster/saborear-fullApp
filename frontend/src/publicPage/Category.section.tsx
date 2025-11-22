@@ -7,15 +7,18 @@ import { useParams } from 'react-router-dom';
 import { ItemModal } from './modal.component';
 import type { Dish ,Config,Style, Resto, Category } from '../types';
 import { getDishImageUrl } from '../services/media';
+import { addToCart, loadCart, saveCart } from '../utils/cart';
+import { SquarePlus } from 'lucide-react';
 
 interface CategorySectionProps {
   categoryName: string;
   categoryObject: Category;
   sizeClass: string;
   resto: Resto;
+  cart?: boolean;
 }
 
-export function CategorySection({categoryName,categoryObject,sizeClass,resto}:CategorySectionProps) {
+export function CategorySection({categoryName,categoryObject,sizeClass,resto, cart}:CategorySectionProps) {
 
     const [option, setOption] = useState<Config | undefined>(resto?.config);
     const [style, setStyle] = useState<Style | undefined>(resto?.style);
@@ -34,11 +37,11 @@ export function CategorySection({categoryName,categoryObject,sizeClass,resto}:Ca
     const SectionCategoryMP = () => {
         console.log("style",style);
         return (
-            <section key={category} className={" justify-self-center p-4 "+(style?.categorySectionStyles.container)+" "+(option?.optionsConfig.enableMultiPage && " mt-5 mx-4 lg:w-1/2")}>
+            <section key={category} className={" justify-self-center p-4 "+(style?.categorySectionStyles.container)+" "+(option?.optionsConfig.enableMultiPage && " mt-5 mx-4 ")}>
                 <h2 className={"mb-4 text-center "+(style?.categorySectionStyles.title)}>{categoryObject.name}</h2>
                 
                     
-                        <div key={category} className={" mx-10 " +style?.categorySectionStyles.descriptionText+" "+ style?.categorySectionStyles.descriptionBorder}  >
+                        <div key={category} className={" mx-10 "+style?.categorySectionStyles.descriptionText+" "+ style?.categorySectionStyles.descriptionBorder}  >
                             {categoryObject.config.descriptionCat && <center><p className='text-sm font-bold mb-4'>{categoryObject.config.descriptionCat}</p></center>}
                             {categoryObject.config.item1Cat && <li className='text-sm'>{categoryObject.config.item1Cat}</li>}
                             {categoryObject.config.item2Cat && <li className='text-sm '>{categoryObject.config.item2Cat}</li>}
@@ -117,6 +120,31 @@ export function CategorySection({categoryName,categoryObject,sizeClass,resto}:Ca
                                         ) : (
                                             <div className="ml-auto font-semibold">${item.price.toFixed(2)}</div>
                                         )}
+                                        {cart && (
+                                          <button
+                                            type="button"
+                                            className="ml-2 text-emerald-600 hover:text-emerald-700"
+                                            title="Agregar al carrito"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              const slug = resto?.slug || '';
+                                              const c = loadCart(slug);
+                                              const next = addToCart(c, item, 1);
+                                              saveCart(slug, next);
+                                              try { window.dispatchEvent(new Event('cart:updated')); } catch {}
+                                              const btn = (e.currentTarget as HTMLButtonElement);
+                                              btn.classList.add('shake-blink');
+                                              setTimeout(() => btn.classList.remove('shake-blink'), 1000);
+                                              const btnCart = document.getElementById('btn-cart');
+                                              if (btnCart) {
+                                                btnCart.classList.add('shake-blink-cart');
+                                                setTimeout(() => btnCart.classList.remove('shake-blink-cart'), 1000);
+                                              }
+                                            }}
+                                          >
+                                            <SquarePlus size={22} />
+                                          </button>
+                                        )}
                                         </div>
                                     </div>
                                     </li>
@@ -138,7 +166,7 @@ export function CategorySection({categoryName,categoryObject,sizeClass,resto}:Ca
                 <section className={" "+(style?.categorySectionStyles.container)+"  justify-self-center p-4  "}>
                     <h2 className={"mb-4 text-center "+(style?.categorySectionStyles.title)}>{categoryName}</h2>
             
-                    <div key={categoryName} className={" mx-10 " +style?.categorySectionStyles.descriptionText+" "+ style?.categorySectionStyles.descriptionBorder} >
+                    <div key={categoryName} className={" mx-10 "+style?.categorySectionStyles.descriptionText+" "+ style?.categorySectionStyles.descriptionBorder} >
                         {categoryObject['config']['descriptionCat'] && <center><p className='text-sm  font-bold mb-4'>{categoryObject['config']['descriptionCat']}</p></center>}
                         {categoryObject['config']['item1Cat'] && <li className='text-sm '>{categoryObject['config']['item1Cat']}</li>}
                         {categoryObject['config']['item2Cat'] && <li className='text-sm '>{categoryObject['config']['item2Cat']}</li>}
@@ -211,6 +239,26 @@ export function CategorySection({categoryName,categoryObject,sizeClass,resto}:Ca
                                     </>
                                     ) : (
                                     <div className="ml-auto font-semibold">${item.price.toFixed(2)}</div>
+                                    )}
+                                    {cart && (
+                                      <button
+                                        type="button"
+                                        className="ml-2 text-emerald-600 hover:text-emerald-700"
+                                        title="Agregar al carrito"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          const slug = resto?.slug || '';
+                                          const c = loadCart(slug);
+                                          const next = addToCart(c, item, 1);
+                                          saveCart(slug, next);
+                                          try { window.dispatchEvent(new Event('cart:updated')); } catch {}
+                                          const btn = (e.currentTarget as HTMLButtonElement);
+                                          btn.classList.add('shake-blink');
+                                          setTimeout(() => btn.classList.remove('shake-blink'), 1000);
+                                        }}
+                                      >
+                                        <SquarePlus size={22} />
+                                      </button>
                                     )}
                                 </div>
                                 </div>

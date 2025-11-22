@@ -96,7 +96,7 @@ export default function ConfigSection() {
             className="w-full border rounded px-3 py-2"
             placeholder="mi-resto-slug"
           />
-          <p className="text-xs text-gray-500 mt-1">Usado en la URL pública: /app/{'{slug}'}</p>
+          <p className="text-xs text-gray-500 mt-1">Usado en la URL pública: /menu/{'{slug}'}</p>
         </section>
 
         {/* Slogan */}

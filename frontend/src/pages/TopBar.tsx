@@ -4,7 +4,8 @@ import {
   Link,
   Eye,
   X,
-  Move
+  Move,
+  ShoppingCart
 } from "lucide-react";
 
 import { useAuth } from "../contexts/AuthContext";
@@ -17,32 +18,43 @@ export default function TopBar() {
     const [modalShow,setModalShow] = useState(false);
 
     return <>
-    <div className="flex bg-white h-20 shadow-lg rounded-lg border-gray-400 border mb-5 items-center px-2">
-        <div>
+    <div className="sticky top-0 p-5 z-40 flex flex-col sm:flex-row md:space-y-0 space-y-2 bg-white shadow-lg rounded-lg border-gray-400 border mb-5 md:items-center px-2 w-[90%] ml-auto lg:w-full lg:ml-0">
+        <div className="md:space-y-0 space-y-2 md:text-left text-center">
             <p><span className="font-bold">Usuario:</span>&nbsp;&nbsp;{user?.username}</p>
             <p><span className="font-bold">Email:</span>&nbsp;&nbsp;{user?.email}</p>
         </div>
         <button 
             title='Vista Previa' 
-            className="flex bg-gray-500 hover:bg-gray-400 text-white px-4 py-2 h-fit ml-auto rounded-md" 
+            className="flex bg-gray-500 hover:bg-gray-400 text-white px-4 py-2 h-fit md:ml-auto rounded-md" 
             onClick={()=>setModalShow(true)}
         >
             VistaPrevia &nbsp; <Eye/>
         </button>
-        <button 
-            title='Menu Público' 
-            className="flex bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 h-fit ml-2 rounded-md" 
-            onClick={()=> {
-                if(btnSaveEnabled){
-                    const res = confirm("Tienes cambios sin guardar, estas seguro de salir de esta seccion?Tus cambios se perderán");
-                    if(!res) return;
-                    setBtnSaveEnabled(false);
-                }
-                Navigate('/app/'+resto?.slug)
-            }}
-        >
-            Menu Público &nbsp; <Link/>
-        </button>
+        <div className="flex flex-col space-y-2">
+          <button 
+              title='Menu Público Sin Carrito' 
+              className="flex bg-blue-500 hover:bg-blue-400 text-white text-sm px-4 py-1 h-fit md:ml-2 rounded-md" 
+              onClick={()=> {
+                  if(btnSaveEnabled){
+                      const res = confirm("Tienes cambios sin guardar, estas seguro de salir de esta seccion?Tus cambios se perderán");
+                      if(!res) return;
+                      setBtnSaveEnabled(false);
+                  }
+                  Navigate('/menu/'+resto?.slug)
+              }}
+          >
+              Menu Público Sin Carrito &nbsp; <Link/>
+          </button>
+          <button 
+              title='Menu Público Con Carrito' 
+              className="flex bg-blue-500 hover:bg-blue-400 text-white text-sm px-4 py-1 h-fit md:ml-2 rounded-md" 
+              onClick={()=> {
+                  Navigate('/menu-cart/'+resto?.slug)
+              }}
+          >
+              Menu Público con Carrito &nbsp; <ShoppingCart/>
+          </button>
+        </div>
     </div>
      {/* Modal */}
      <PreviewModal

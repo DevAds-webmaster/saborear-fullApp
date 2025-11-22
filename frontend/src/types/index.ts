@@ -38,6 +38,7 @@ export interface RestoContextType {
   btnSaveEnabled: boolean;
   setBtnSaveEnabled: (state: boolean) => void;
   getStylesOptions: () => Promise<StyleOptionsMap | null>;
+  getThemeOptions: () => Promise<ThemeOptions | null>;
 }
 
 export interface PublicContextType {
@@ -49,15 +50,27 @@ export interface PublicContextType {
   setSlug: (slug: string) => void;
   bgImage: string| undefined;
   setBgImage: (bg: string | undefined) => void;
+  getRestoWhatsAppLink?: (message: string) => string | null;
 }
 
 export type StyleOptionsMap = Record<string, Array<{ id: string; label: string; value: string }>>;
+export interface ThemeOption {
+  id: string;
+  name: string;
+  data: Record<string, string>;
+}
+
+export interface ThemeOptions {
+  options: ThemeOption[];
+}
 
 // Resto types
 export interface Resto {
   _id: string;
   name: string;
   slug: string;
+  phone?: string;
+  address?: string;
   params: Parameters[];
   menu: Menu;
   config: Config;

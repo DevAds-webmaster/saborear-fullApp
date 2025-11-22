@@ -77,5 +77,30 @@ export const restoService = {
             console.error('Get option styles error:', error);
             return null;
         }
-    }
-};
+    },
+
+
+    async getThemeOptions(): Promise<{ options: Array<{ id: string; name: string; data: Record<string, string> }> } | null> {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/macros/themes`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+                }
+            });
+
+            if (!response.ok) {
+                console.error('Error al obtener opciones de themes');
+                return null;
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Get option themes error:', error);
+            return null;
+        }
+    },
+
+}
