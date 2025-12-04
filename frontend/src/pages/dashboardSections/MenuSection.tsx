@@ -2,7 +2,7 @@ import React, { useState ,useEffect} from "react";
 import { MoveVertical  as MoveIcon } from "lucide-react";
 import type { Resto, Menu, Category, Dish } from "../../types";
 import { useResto } from '../../contexts/RestoContext';
-import { getCloudinarySignature, uploadSignedToCloudinary, getDishImageUrl } from "../../services/media";
+import { getImageKitAuth, uploadToImageKit, getDishImageUrl } from "../../services/media";
 
 interface MenuSectionProps {
   resto: Resto | null;
@@ -504,16 +504,16 @@ function Modal({ type, item, onCancel, onConfirm, orderLabel }: any) {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const sig = await getCloudinarySignature();
-      const r = await uploadSignedToCloudinary(file, sig);
+      const auth = await getImageKitAuth();
+      const r = await uploadToImageKit(file, auth);
       setForm((prev: any) => ({
         ...prev,
         image: {
-          secure_url: r.secure_url,
-          public_id: r.public_id,
+          secure_url: r.url,
+          public_id: r.fileId,
           width: r.width,
           height: r.height,
-          format: r.format,
+          format: r.fileType,
         },
       }));
     } catch (err) {

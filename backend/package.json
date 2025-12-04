@@ -17,6 +17,7 @@
     "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "imagekit": "^5.0.0",
     "mercadopago": "^2.10.0",
     "mongoose": "^8.18.2"
   },

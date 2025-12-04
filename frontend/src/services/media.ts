@@ -1,27 +1,19 @@
-export type CloudinaryUploadResp = {
-  asset_id: string;
-  public_id: string;
-  version: number;
-  version_id: string;
-  signature: string;
-  width: number;
-  height: number;
-  format: string;
-  resource_type: 'image';
-  created_at: string;
-  tags: string[];
-  bytes: number;
-  type: 'upload';
-  etag: string;
-  placeholder: boolean;
+// Tipos de respuesta de ImageKit
+export type ImageKitUploadResp = {
+  fileId: string;
+  name: string;
+  size: number;
+  versionInfo?: { id: string; name: string };
+  filePath: string;
   url: string;
-  secure_url: string;
-  folder?: string;
-  original_filename: string;
+  thumbnailUrl?: string;
+  height?: number;
+  width?: number;
+  fileType?: string; // "image"
 };
 
-export async function getCloudinarySignature() {
-  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/media/signature`, {
+export async function getImageKitAuth() {
+  const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/media/ik-auth`, {
     method: 'GET',
     headers: {
       'ngrok-skip-browser-warning': 'true',
@@ -30,40 +22,46 @@ export async function getCloudinarySignature() {
       'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
     },
   });
-  if (!res.ok) throw new Error('No se pudo obtener firma de Cloudinary');
+  if (!res.ok) throw new Error('No se pudo obtener auth de ImageKit');
   return res.json() as Promise<{
-    timestamp: number;
+    token: string;
+    expire: number;
     signature: string;
-    api_key: string;
-    cloud_name: string;
+    publicKey: string;
+    urlEndpoint: string;
     folder: string;
   }>;
 }
 
-export async function uploadSignedToCloudinary(file: File, sig: {
-  timestamp: number; signature: string; api_key: string; cloud_name: string; folder: string;
+export async function uploadToImageKit(file: File, auth: {
+  token: string; expire: number; signature: string; publicKey: string; folder?: string;
 }) {
   const form = new FormData();
   form.append('file', file);
-  form.append('api_key', sig.api_key);
-  form.append('timestamp', String(sig.timestamp));
-  form.append('signature', sig.signature);
-  form.append('folder', sig.folder);
+  form.append('fileName', file.name);
+  form.append('token', auth.token);
+  form.append('expire', String(auth.expire));
+  form.append('signature', auth.signature);
+  form.append('publicKey', auth.publicKey);
+  if (auth.folder) form.append('folder', auth.folder);
 
-  const endpoint = `https://api.cloudinary.com/v1_1/${sig.cloud_name}/image/upload`;
+  const endpoint = `https://upload.imagekit.io/api/v1/files/upload`;
   const res = await fetch(endpoint, { method: 'POST', body: form });
-  if (!res.ok) throw new Error('Error subiendo imagen');
-  return res.json() as Promise<CloudinaryUploadResp>;
+  if (!res.ok) throw new Error('Error subiendo imagen a ImageKit');
+  return res.json() as Promise<ImageKitUploadResp>;
 }
 
-export function cldOptimizedUrlFromPublicId(publicId: string, width = 800) {
-  const cloud = import.meta.env.VITE_CLD_CLOUD_NAME;
-  return `https://res.cloudinary.com/${cloud}/image/upload/f_auto,q_auto,w_${width}/${publicId}`;
-}
-
-export function cldOptimizedUrlFromSecureUrl(secureUrl: string, width = 800) {
-  const parts = secureUrl.split('/upload/');
-  return parts.length === 2 ? `${parts[0]}/upload/f_auto,q_auto,w_${width}/${parts[1]}` : secureUrl;
+// Helper para aplicar transformaciones de ImageKit insertando /tr:... en la URL base
+export function ikOptimizedUrlFromUrl(url: string, width = 800) {
+  try {
+    const u = new URL(url);
+    if (!u.pathname.includes('/tr:')) {
+      u.pathname = `/tr:w-${width},q-80,fo-auto${u.pathname}`;
+    }
+    return u.toString();
+  } catch {
+    return url;
+  }
 }
 
 // Nueva función para obtener la URL de un SignedImage del plato
@@ -71,7 +69,7 @@ import type { SignedImage } from '../types';
 
 export function getDishImageUrl(image: SignedImage | undefined, width = 800) {
   if (!image?.secure_url) return '';
-  return cldOptimizedUrlFromSecureUrl(image.secure_url, width);
+  return ikOptimizedUrlFromUrl(image.secure_url, width);
 }
 
 

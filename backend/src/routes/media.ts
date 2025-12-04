@@ -4,7 +4,9 @@ import mediaController from "../controllers/media.js";
 
 const router = Router();
 
-router.get("/signature", AuthJwt.verifyToken, (req, res) => mediaController.getSignature(req, res));
+// Auth para ImageKit
+router.get("/ik-auth", AuthJwt.verifyToken, (req, res) => mediaController.getIKAuth(req, res));
+// Eliminar por fileId
 router.post("/delete", AuthJwt.verifyToken, (req, res) => mediaController.deleteImage(req, res));
 
 export default router;

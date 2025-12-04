@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useResto } from "../contexts/RestoContext"; 
-import { getDishImageUrl, getCloudinarySignature, uploadSignedToCloudinary } from "../services/media";
+import { getDishImageUrl, getImageKitAuth, uploadToImageKit } from "../services/media";
 import type { SignedImage, Resto, Config } from "../types";
 
 export default function DashboardNav({ active, onChange }:any) {
@@ -39,14 +39,14 @@ export default function DashboardNav({ active, onChange }:any) {
 
   const uploadImage = async (file: File): Promise<SignedImage | null> => {
     try {
-      const sig = await getCloudinarySignature();
-      const r = await uploadSignedToCloudinary(file, sig);
+      const auth = await getImageKitAuth();
+      const r = await uploadToImageKit(file, auth);
       return { 
-        secure_url: r.secure_url, 
-        public_id: r.public_id, 
+        secure_url: r.url, 
+        public_id: r.fileId, 
         width: r.width, 
         height: r.height, 
-        format: r.format 
+        format: r.fileType 
       };
     } catch {
       alert('Error subiendo imagen');

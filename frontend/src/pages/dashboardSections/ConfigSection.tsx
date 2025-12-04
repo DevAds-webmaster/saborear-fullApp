@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { TriangleAlert } from "lucide-react";
 import type { Resto, Config, SignedImage } from "../../types";
 import { useResto } from "../../contexts/RestoContext";
-import { getCloudinarySignature, uploadSignedToCloudinary } from "../../services/media";
+import { getImageKitAuth, uploadToImageKit } from "../../services/media";
 
 export default function ConfigSection() {
   const { resto, restoPreview, setRestoPreview, updateResto, btnSaveEnabled, setBtnSaveEnabled } = useResto();
@@ -50,9 +50,9 @@ export default function ConfigSection() {
 
   const uploadImage = async (file: File): Promise<{ secure_url: string; public_id: string; width?: number; height?: number; format?: string } | null> => {
     try {
-      const sig = await getCloudinarySignature();
-      const r = await uploadSignedToCloudinary(file, sig);
-      return { secure_url: r.secure_url, public_id: r.public_id, width: r.width, height: r.height, format: r.format };
+      const auth = await getImageKitAuth();
+      const r = await uploadToImageKit(file, auth);
+      return { secure_url: r.url, public_id: r.fileId, width: r.width, height: r.height, format: r.fileType };
     } catch {
       alert('Error subiendo imagen');
       return null;

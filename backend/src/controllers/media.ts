@@ -1,39 +1,43 @@
 import { Request, Response } from "express";
-import cloudinary from "../utils/cloudinary.js";
+import crypto from "crypto";
+import imagekit from "../utils/imagekit.js";
 
 class mediaController {
-    async getSignature(req: Request, res: Response) {
-        try {
-            const timestamp = Math.round(Date.now() / 1000);
-            const folder = process.env.CLOUDINARY_UPLOAD_FOLDER || "saborear";
-            const paramsToSign: Record<string, any> = { timestamp, folder };
-            const signature = (cloudinary as any).utils.api_sign_request(
-                paramsToSign,
-                process.env.CLOUDINARY_API_SECRET as string
-            );
+  // Auth para ImageKit client-side upload
+  async getIKAuth(req: Request, res: Response) {
+    try {
+      const token = crypto.randomBytes(16).toString("hex");
+      const expire = Math.floor(Date.now() / 1000) + 240; // 4 minutos
+      const privateKey = process.env.IMAGEKIT_PRIVATE_KEY as string;
+      if (!privateKey) return res.status(500).json({ error: "IMAGEKIT_PRIVATE_KEY no configurado" });
+      const signature = crypto
+        .createHmac("sha1", privateKey)
+        .update(token + expire)
+        .digest("hex");
 
-            res.json({
-                timestamp,
-                signature,
-                api_key: process.env.CLOUDINARY_API_KEY,
-                cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-                folder,
-            });
-        } catch (error) {
-            res.status(500).json({ error: "Error al generar firma" });
-        }
+      res.json({
+        token,
+        expire,
+        signature,
+        publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+        urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+        folder: process.env.IMAGEKIT_UPLOAD_FOLDER || "saborear",
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Error generando auth de ImageKit" });
     }
+  }
 
-    async deleteImage(req: Request, res: Response) {
-        try {
-            const { public_id } = req.body as { public_id?: string };
-            if (!public_id) return res.status(400).json({ error: "public_id requerido" });
-            await cloudinary.uploader.destroy(public_id, { resource_type: "image" });
-            res.json({ ok: true });
-        } catch (error) {
-            res.status(500).json({ error: "Error eliminando imagen" });
-        }
+  async deleteImage(req: Request, res: Response) {
+    try {
+      const { fileId } = req.body as { fileId?: string };
+      if (!fileId) return res.status(400).json({ error: "fileId requerido" });
+      await imagekit.deleteFile(fileId);
+      res.json({ ok: true });
+    } catch (error) {
+      res.status(500).json({ error: "Error eliminando imagen" });
     }
+  }
 }
 
 export default new mediaController();
