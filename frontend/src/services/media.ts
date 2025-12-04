@@ -56,7 +56,7 @@ export function ikOptimizedUrlFromUrl(url: string, width = 800) {
   try {
     const u = new URL(url);
     if (!u.pathname.includes('/tr:')) {
-      u.pathname = `/tr:w-${width},q-80,fo-auto${u.pathname}`;
+      u.pathname = `${u.pathname}/tr:w-${width},q-80,fo-auto`;
     }
     return u.toString();
   } catch {
