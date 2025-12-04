@@ -1,5 +1,6 @@
 
 import { useEffect,useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import Login from './Login';
 
@@ -8,20 +9,33 @@ import TopBar from "./TopBar"
 import HomeSection from "./dashboardSections/HomeSection";
 import MenuSection from "./dashboardSections/MenuSection";
 import VisualSection from "./dashboardSections/VisualSection";
+import CartSection from "./dashboardSections/CartSection.tsx";
+import ConfigSection from "./dashboardSections/ConfigSection.tsx";
 import PaymentsSection from "./dashboardSections/PaymentsSection";
 import StatsSection from "./dashboardSections/StatsSection";
-import ConfigSection from "./dashboardSections/ConfigSection.tsx";
 import { useAuth } from '../contexts/AuthContext';
 import { useResto } from '../contexts/RestoContext';
 
 function Dashboard (){
-    const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'payments'| 'stats' | 'config'> ('home');
+    const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'cart'| 'payments'| 'stats' | 'config'> ('home');
     const { user, isLoading } = useAuth();
-    const {resto ,updateResto ,id, setId,getResto} = useResto();
+    const {resto ,updateResto ,id, setId,getResto, btnSaveEnabled} = useResto();
     const [userRestos , setUserRestos] = useState<string[]| undefined >([]);
+    const [searchParams] = useSearchParams();
 
 
-    useEffect(()=>{setCurrentView('home')},[user]) //vista por defecto de todos los usuarios
+    useEffect(()=>{
+      const viewParam = searchParams.get('view');
+      const allowed = ['home','menu','visual','cart','payments','stats','config'] as const;
+      type View = typeof allowed[number];
+      const isView = (v: string): v is View => (allowed as readonly string[]).includes(v);
+
+      if(viewParam && isView(viewParam)){
+        setCurrentView(viewParam);
+      }else{
+        setCurrentView('home');
+      }
+    },[user, searchParams]) // vista por defecto de todos los usuarios o según ?view=
 
     useEffect(()=>{
       if(user){
@@ -39,6 +53,20 @@ function Dashboard (){
       getResto();
     },[id])
 
+    // Bloquear cierre/recarga/navegación si hay cambios sin guardar
+    useEffect(() => {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        if (btnSaveEnabled) {
+          e.preventDefault();
+          return false;
+        }else{
+          return true;
+        }
+      };
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [btnSaveEnabled]);
+
     const renderSection = () => {
         switch (currentView) {
           case "home":
@@ -46,7 +74,9 @@ function Dashboard (){
           case "menu":
             return <MenuSection resto={resto} updateResto={updateResto} />;
           case "visual":
-            return <VisualSection />;
+            return <VisualSection  resto={resto} updateResto={updateResto} />;
+          case "cart":
+            return <CartSection />;
           case "payments":
             return <PaymentsSection />;
           case "stats":
@@ -74,12 +104,12 @@ function Dashboard (){
         return <Login/>;
 
     return (
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-gray-50 overflow-hidden">
           {/* Sidebar */}
           <DashboardNav active={currentView} onChange={setCurrentView} />
     
           {/* Main content */}
-          <main className="flex-1 p-6 overflow-y-auto">
+          <main className="flex-1 h-full p-6 overflow-y-auto">
             {/*Top Bar*/}
             <TopBar/>
             {renderSection()}

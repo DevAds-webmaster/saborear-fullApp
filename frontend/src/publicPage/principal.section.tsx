@@ -5,17 +5,17 @@ import { ItemModal } from './modal.component';
 
 
 import type { Category, Config, Dish ,Resto, Style , MDC} from '../types';
-
-// Importing data configuration
-import { optionsConfig } from './macros';
-import { principalSectionStyles } from './customStyles';
+import { getDishImageUrl } from '../services/media';
+import { addToCart, loadCart, saveCart } from '../utils/cart';
+import { SquarePlus } from 'lucide-react';
 
 interface PrincipalSectionProps {
   resto: Resto | null;
+  cart?: boolean;
 }
 
 
-export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => {
+export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto, cart }) => {
 
 
     const [option, setOption] = useState<Config | undefined>();
@@ -52,7 +52,7 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => 
 
     
     return(
-        <section key="menu-dia" className= {"py-4 m-4 "+style?.principalSectionStyles.container}>
+        <section key="menu-dia" className= {"py-4 mx-4 mt-4 "+style?.principalSectionStyles.container}>
           <h2 className={"mb-4 text-center "+(style?.principalSectionStyles.title)}>{menuDayConfig?.titleCat}</h2>
 
           
@@ -73,8 +73,8 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => 
           
               
 
-          <ul className={"grid grid-cols-1 lg:grid-cols-2 gap-6 py-4 sm:px-4 "+style?.principalSectionStyles.itemsText}> 
-          {  menuDia?.map((Dish,index) => 
+          <ul className={"grid grid-cols-1 lg:grid-cols-2 gap-6 py-4 sm:px-4 "}> 
+          {  menuDia?.map((dish,index) => 
               (
 
                 <li 
@@ -82,60 +82,84 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto }) => 
                   className={"flex flex-row items-start justify-between gap-4 px-3 w-full h-full  py-5 place-self-center "+(style?.principalSectionStyles.itemContainer) +" " + (option?.optionsConfig.enableItemModals &&" "&& style?.principalSectionStyles.itemHover)}
                   onClick={()=> (
                     option?.optionsConfig.enableItemModals && 
-                            Dish.image && (() => setModalData({
-                                                  image: "/assets/menu-fotos/" + Dish.image,
-                                                  category: Dish.category,
-                                                  title: Dish.title,
-                                                  description: Dish.description,
-                                                  price: Dish.price,
-                                                  discountPrice: Dish.discountPrice,
-                                                  featuredText: Dish.featuredText,
-                                                  featuredTextColor: Dish.featuredTextColor,
-                                                  glutenFree: Dish.glutenFree,
-                                                  veggie: Dish.veggie
+                            dish.image?.secure_url && (() => setModalData({
+                                                  image: getDishImageUrl(dish.image, 1000),
+                                                  category: dish.category,
+                                                  title: dish.title,
+                                                  description: dish.description,
+                                                  price: dish.price,
+                                                  discountPrice: dish.discountPrice,
+                                                  featuredText: dish.featuredText,
+                                                  featuredTextColor: dish.featuredTextColor,
+                                                  glutenFree: dish.glutenFree,
+                                                  veggie: dish.veggie
                                               }))
                     )}
                   >
-                  {(Dish['featuredText'] && 
-                    <div className='featuredText' style={{color:Dish['featuredTextColor']||'#0f0'}}>{Dish['featuredText']}</div>
+                  {(dish['featuredText'] && 
+                    <div className='featuredText' style={{color:dish['featuredTextColor']||'#0f0'}}>{dish['featuredText']}</div>
                   )}
-                  {Dish.image && (
-                  <img src={"./assets/menu-fotos/"+Dish.image} alt={Dish.title} className="w-20 h-30 object-cover rounded-md place-self-center" />
+                  {dish.image?.secure_url && (
+                  <img src={getDishImageUrl(dish.image, 240)} alt={dish.title} className="w-20 h-30 object-cover rounded-md place-self-center" />
                   )}
-                  <div className="flex-1">
+                  <div className={"flex-1 "+style?.principalSectionStyles.itemsText}>
                    
                     <div className="flex flex-row justify-end">  
                      
-                      {(Dish['glutenFree'] === true && 
+                      {(dish['glutenFree'] === true && 
                         <span className={"bg-yellow-300 p-1  rounded-md float-right font-bold text-xs uppercase mx-1 "+style?.principalSectionStyles.tagsTextColor}>Sin TACC</span>
                       )}
-                      {(Dish['veggie'] === true && 
+                      {(dish['veggie'] === true && 
                           <span className={"bg-green-600 p-1 rounded-md float-right font-bold text-xs text-amber-50 uppercase mx-1 "+style?.principalSectionStyles.tagsTextColor}>Veggie</span>
                       )}
-                       <span className={"bg-white p-1 rounded-md float-right font-bold text-xs uppercase "+style?.principalSectionStyles.tagsTextColor}>{Dish.category}</span>
+                       <span className={"bg-white p-1 rounded-md float-right font-bold text-xs uppercase "+style?.principalSectionStyles.tagsTextColor}>{dish.category}</span>
                     </div>
-                    <div className="font-bold italic text-lg">{Dish.title}</div>
+                    <div className="font-bold italic text-lg">{dish.title}</div>
                     {
-                      Dish.description?
-                      <div className="text-sm text-gray-500">{(Dish.description.length > 100 ?Dish.description.substr(0,100)+'...' : Dish.description)}</div>  
+                      dish.description?
+                      <div className="text-sm text-gray-500">{(dish.description.length > 100 ?dish.description.substr(0,100)+'...' : dish.description)}</div>  
                       :
                       <></>
                     }<div className="flex flex-row ">
                       
-
-                          {Dish.discountPrice ? (
+                          {dish.discountPrice ? (
                             <>
                               <div className="ml-auto line-through text-gray-500 mr-2">
-                                ${Dish.price.toFixed(2)}
+                                ${dish.price.toFixed(2)}
                               </div>
                               <div className="text-green-600 font-semibold">
-                                ${Dish.discountPrice.toFixed(2)}
+                                ${dish.discountPrice.toFixed(2)}
                               </div>
                             </>
                           ) : (
                             <div className="ml-auto font-semibold">
-                              ${Dish.price.toFixed(2)}
+                              ${dish.price.toFixed(2)}
                             </div>
+                          )}
+                          {cart && (
+                            <button
+                              type="button"
+                              className="ml-2 text-emerald-600 hover:text-emerald-700"
+                              title="Agregar al carrito"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const slug = resto?.slug || '';
+                                const c = loadCart(slug);
+                                const next = addToCart(c, dish, 1);
+                                saveCart(slug, next);
+                                try { window.dispatchEvent(new Event('cart:updated')); } catch {}
+                                const btn = (e.currentTarget as HTMLButtonElement);
+                                btn.classList.add('shake-blink');
+                                setTimeout(() => btn.classList.remove('shake-blink'), 1000);
+                                const btnCart = document.getElementById('btn-cart');
+                                if (btnCart) {
+                                  btnCart.classList.add('shake-blink-cart');
+                                  setTimeout(() => btnCart.classList.remove('shake-blink-cart'), 1000);
+                                }
+                              }}
+                            >
+                              <SquarePlus size={22} />
+                            </button>
                           )}
                     </div>
                   </div>

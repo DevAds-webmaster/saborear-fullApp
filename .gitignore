@@ -1,0 +1,68 @@
+# === Logs ===
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# === OS / Sistema ===
+.DS_Store
+Thumbs.db
+
+# === Dependencias ===
+node_modules/
+**/node_modules/
+
+# === Documentos ===
+docs/
+**/docs/
+
+# === Compilados / Builds ===
+dist/
+build/
+coverage/
+.tmp/
+.temp/
+.cache/
+.parcel-cache/
+.vite/
+**/dist/
+**/build/
+
+# === TypeScript ===
+*.tsbuildinfo
+
+# === Entornos (.env) ===
+.env
+.env.local
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# === Editores ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === Datos locales / temporales ===
+tmp/
+temp/
+uploads/
+**/uploads/
+*.db
+*.sqlite
+**/*.db
+**/*.sqlite
+
+# === Misceláneos de frameworks (por si se usan) ===
+.next/
+.out/
+.nuxt/
+.svelte-kit/
+

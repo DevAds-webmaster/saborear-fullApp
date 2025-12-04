@@ -37,6 +37,8 @@ export interface RestoContextType {
   setId: (id: string) => void;
   btnSaveEnabled: boolean;
   setBtnSaveEnabled: (state: boolean) => void;
+  getStylesOptions: () => Promise<StyleOptionsMap | null>;
+  getThemeOptions: () => Promise<ThemeOptions | null>;
 }
 
 export interface PublicContextType {
@@ -48,6 +50,18 @@ export interface PublicContextType {
   setSlug: (slug: string) => void;
   bgImage: string| undefined;
   setBgImage: (bg: string | undefined) => void;
+  getRestoWhatsAppLink?: (message: string) => string | null;
+}
+
+export type StyleOptionsMap = Record<string, Array<{ id: string; label: string; value: string }>>;
+export interface ThemeOption {
+  id: string;
+  name: string;
+  data: Record<string, string>;
+}
+
+export interface ThemeOptions {
+  options: ThemeOption[];
 }
 
 // Resto types
@@ -55,6 +69,8 @@ export interface Resto {
   _id: string;
   name: string;
   slug: string;
+  phone?: string;
+  address?: string;
   params: Parameters[];
   menu: Menu;
   config: Config;
@@ -73,6 +89,8 @@ export interface Style {
       descriptionText: string;
       descriptionBorder: string;
       itemsText: string;
+      itemTitle: string;
+      itemDescription: string;
       itemHover: string;
       tagsTextColor: string;
   };
@@ -159,8 +177,9 @@ export interface Config {
   slogan:string; 
   paramModalsEnable : boolean;
   paramModalsDelay : number;
-  srcImgBackground : string;
-  srcImgLogo : string;
+  srcImgBackground : SignedImage;
+  srcImgLogo : SignedImage;
+  srcImgLogoDashboard : SignedImage;
 }
 
 export interface OpDspCommercial {
@@ -229,6 +248,14 @@ export interface Category {
   dishes: Dish[];
 }
 
+  export interface SignedImage {
+    secure_url: string;
+    public_id: string;
+    width?: number;
+    height?: number;
+    format?: string;
+  }
+
   export interface Dish {
     _id: string;
     category?: string;
@@ -240,7 +267,7 @@ export interface Category {
     dayDish: boolean;
     glutenFree: boolean;
     veggie: boolean;
-    image: string;
+    image?: SignedImage;
     featuredText: string;
     featuredTextColor: string;
     EnDisplayDePaso: boolean;

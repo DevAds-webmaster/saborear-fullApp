@@ -33,7 +33,8 @@ class AuthJwt {
 
     generateToken(user: any) {
         if(user.username || user.email) {
-            return jwt.sign({ username: user.username, email: user.email }, process.env.JWT_SECRET || "", { expiresIn: "1h" });
+            //return jwt.sign({ username: user.username, email: user.email }, process.env.JWT_SECRET || "", { expiresIn: "1h" });
+            return jwt.sign({ username: user.username, email: user.email }, process.env.JWT_SECRET || "");
         }
     }
 }

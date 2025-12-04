@@ -10,7 +10,13 @@ export interface IDish {
     dayDish:boolean;
     glutenFree: boolean;
     veggie: boolean;
-    image: string;
+    image?: {
+        secure_url: string;
+        public_id: string;
+        width?: number;
+        height?: number;
+        format?: string;
+    };
     featuredText: string;
     featuredTextColor: string;
     EnDisplayDePaso: boolean;
@@ -30,7 +36,13 @@ export const dishSchema = new Schema<IDish>({
     dayDish: { type: Boolean, required: true },
     glutenFree: { type: Boolean, required: true },
     veggie: { type: Boolean, required: true },
-    image: { type: String, required: true },
+    image: {
+        secure_url: { type: String, required: false },
+        public_id: { type: String, required: false },
+        width: { type: Number, required: false },
+        height: { type: Number, required: false },
+        format: { type: String, required: false }
+    },
     featuredText: { type: String, required: true },
     featuredTextColor: { type: String, required: true },
     EnDisplayDePaso: { type: Boolean, required: true },
@@ -38,6 +50,7 @@ export const dishSchema = new Schema<IDish>({
     "EnDisplayComercial-2": { type: Boolean, required: true },
     "EnDisplayComercial-3": { type: Boolean, required: true }
 });
+
 
 export default model<IDish>("Dish", dishSchema);
   

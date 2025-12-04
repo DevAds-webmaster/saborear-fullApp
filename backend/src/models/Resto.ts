@@ -13,6 +13,8 @@ import { styleSchema } from "./Style.js";
 export interface IResto extends Document {
   name: string;
   slug: string;
+  phone?: string;
+  address?: string;
   params: IParameters[];
   menu: IMenu;
   config: IConfig;
@@ -31,6 +33,8 @@ export const restoSchema = new Schema<IResto>({
     trim: true,
     match: /^[a-z0-9]+(?:-[a-z0-9]+)*$/  // solo letras minúsculas, números y guiones medios
   },
+  phone: { type: String },
+  address: { type: String },
   params: [parametersSchema],
   menu: menuSchema,
   config: configSchema,

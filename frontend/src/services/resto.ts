@@ -3,7 +3,13 @@ import { type Resto } from '../types';
 export const restoService = {
     async getRestoById(restoId: string): Promise<Resto | null> {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/resto/id/${restoId}`);
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/resto/id/${restoId}`,{
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
             if (!response.ok) {
                 return null;
             }
@@ -17,7 +23,13 @@ export const restoService = {
 
     async getRestoBySlug(restoSlug: string | undefined): Promise<Resto | null> {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/resto/slug/${restoSlug}`);
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/resto/slug/${restoSlug}`,{
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            });
             if (!response.ok) {
                 return null;
             }
@@ -34,6 +46,8 @@ export const restoService = {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/resto/${restoId}`, {
                 method: 'PUT', // o 'PATCH' si tu API usa ese método
                 headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem("authToken")}`
                 },
@@ -54,5 +68,57 @@ export const restoService = {
             console.error('Update resto error:', error);
             return null;
         }
-    }
-};
+    },
+
+    async getOptionStyles(): Promise<Record<string, Array<{ id: string; label: string; value: string }>> | null> {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/macros/style-options`, {
+                method: 'GET',
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+                }
+            });
+
+            if (!response.ok) {
+                console.error('Error al obtener opciones de estilos');
+                return null;
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Get option styles error:', error);
+            return null;
+        }
+    },
+
+
+    async getThemeOptions(): Promise<{ options: Array<{ id: string; name: string; data: Record<string, string> }> } | null> {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/macros/themes`, {
+                method: 'GET',
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+                }
+            });
+
+            if (!response.ok) {
+                console.error('Error al obtener opciones de themes');
+                return null;
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Get option themes error:', error);
+            return null;
+        }
+    },
+
+}

@@ -12,6 +12,8 @@ export interface IStyle {
         descriptionText: string;
         descriptionBorder: string;
         itemsText: string;
+        itemTitle: string;
+        itemDescription: string;
         itemHover: string;
         tagsTextColor: string;
     };
@@ -91,6 +93,8 @@ export const styleSchema = new Schema<IStyle>({
         descriptionText: { type: String, required: true },
         descriptionBorder: { type: String, required: true },
         itemsText: { type: String, required: true },
+        itemTitle: { type: String, required: true },
+        itemDescription: { type: String, required: true },
         itemHover: { type: String, required: true },
         tagsTextColor: { type: String, required: true }
     },

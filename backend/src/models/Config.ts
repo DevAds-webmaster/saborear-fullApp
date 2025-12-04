@@ -36,8 +36,27 @@ export interface IConfig {
     slogan:string; 
     paramModalsEnable : boolean;
     paramModalsDelay : number;
-    srcImgBackground : string;
-    srcImgLogo : string;
+    srcImgBackground : {
+        secure_url: string;
+        public_id: string;
+        width?: number;
+        height?: number;
+        format?: string;
+    };
+    srcImgLogo : {
+        secure_url: string;
+        public_id: string;
+        width?: number;
+        height?: number;
+        format?: string;
+    };
+    srcImgLogoDashboard : {
+        secure_url: string;
+        public_id: string;
+        width?: number;
+        height?: number;
+        format?: string;
+    };
   }
 
   export interface IOpDspCommercial {
@@ -89,8 +108,27 @@ export const configSchema = new Schema<IConfig>({
     slogan:{ type: String, required: true },
     paramModalsEnable : { type: Boolean, required: true },
     paramModalsDelay : { type: Number, required: true },
-    srcImgBackground : { type: String, required: true },
-    srcImgLogo : { type: String, required: true }
+    srcImgBackground : {
+        secure_url: { type: String, required: true },
+        public_id: { type: String, required: true },
+        width: { type: Number, required: false },
+        height: { type: Number, required: false },
+        format: { type: String, required: false }
+    },
+    srcImgLogo : {
+        secure_url: { type: String, required: true },
+        public_id: { type: String, required: true },
+        width: { type: Number, required: false },
+        height: { type: Number, required: false },
+        format: { type: String, required: false }
+    },
+    srcImgLogoDashboard : {
+        secure_url: { type: String, required: true },
+        public_id: { type: String, required: true },
+        width: { type: Number, required: false },
+        height: { type: Number, required: false },
+        format: { type: String, required: false }
+    }
   });
 
 export default model<IConfig>("Config", configSchema);

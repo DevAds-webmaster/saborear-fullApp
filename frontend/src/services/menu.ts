@@ -8,6 +8,8 @@ export const authService ={
           const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
             method: 'POST',
             headers: {
+              'ngrok-skip-browser-warning': 'true',
+              'Accept': 'application/json',
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${import.meta.env.VITE_BACKEND_KEY}`,
             },

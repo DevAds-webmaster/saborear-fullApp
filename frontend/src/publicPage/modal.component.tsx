@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useResto } from '../contexts/RestoContext';
-import type { Config, Style } from '../types';
-import {modalsItemsStyles,modalsParamStyles} from './customStyles';
+import type { Style } from '../types';
+import { useLocation } from 'react-router-dom';
 
 export function ItemModal({ open, onClose, image, category, title, description, price, discountPrice, featuredText, featuredTextColor, glutenFree, veggie}:any) {
   if (!open) return null;
   
-  const {resto} = useResto();
+  
+  const {resto, restoPreview} = useResto();
+  const location = useLocation();
+  const isPreview = location.pathname.startsWith('/preview');
   const [style, setStyle] = useState<Style | undefined>();
 
   useEffect(()=>{
-    setStyle(resto?.style);
-  },[resto]);
+    setStyle((isPreview ? restoPreview : resto)?.style);
+  },[resto, restoPreview, isPreview]);
   
   
   return (
@@ -60,12 +63,14 @@ export function ParamModal({ open, onClose, enableMod, imageMod, titleMod, descr
 
   if (enableMod!=='si') return null; // Si el modal no está habilitado, no renderiza nada
 
-  const {resto} = useResto();
+  const {resto, restoPreview} = useResto();
+  const location = useLocation();
+  const isPreview = location.pathname.startsWith('/preview');
   const [style, setStyle] = useState<Style | undefined>();
 
   useEffect(()=>{
-    setStyle(resto?.style);
-  },[resto]);
+    setStyle((isPreview ? restoPreview : resto)?.style);
+  },[resto, restoPreview, isPreview]);
 
   return (
     <div
