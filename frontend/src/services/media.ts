@@ -24,6 +24,9 @@ export async function getCloudinarySignature() {
   const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/media/signature`, {
     method: 'GET',
     headers: {
+      'ngrok-skip-browser-warning': 'true',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
     },
   });

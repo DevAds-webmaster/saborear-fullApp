@@ -1,5 +1,6 @@
 
 import { useEffect,useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import Login from './Login';
 
@@ -20,9 +21,21 @@ function Dashboard (){
     const { user, isLoading } = useAuth();
     const {resto ,updateResto ,id, setId,getResto, btnSaveEnabled} = useResto();
     const [userRestos , setUserRestos] = useState<string[]| undefined >([]);
+    const [searchParams] = useSearchParams();
 
 
-    useEffect(()=>{setCurrentView('home')},[user]) //vista por defecto de todos los usuarios
+    useEffect(()=>{
+      const viewParam = searchParams.get('view');
+      const allowed = ['home','menu','visual','cart','payments','stats','config'] as const;
+      type View = typeof allowed[number];
+      const isView = (v: string): v is View => (allowed as readonly string[]).includes(v);
+
+      if(viewParam && isView(viewParam)){
+        setCurrentView(viewParam);
+      }else{
+        setCurrentView('home');
+      }
+    },[user, searchParams]) // vista por defecto de todos los usuarios o según ?view=
 
     useEffect(()=>{
       if(user){
