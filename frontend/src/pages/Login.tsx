@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LogIn, User, Lock ,ChevronLeft  } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+
 
 const Login: React.FC = () => {
   const [usuario, setUsuario] = useState('');
@@ -9,7 +9,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
 
-  const navigate = useNavigate();
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +87,10 @@ const Login: React.FC = () => {
             <div className='flex gap-2'>
               <button
                 type="button"
-                onClick={()=>{navigate('/')}}
+                onClick={()=>{
+                  const url = import.meta.env.VITE_HOME_URL || '/';
+                  window.location.href = url;
+                }}
                 className="w-0.3 bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center "
               >
                   <>
