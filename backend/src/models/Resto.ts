@@ -20,6 +20,10 @@ export interface IResto extends Document {
   config: IConfig;
   style: IStyle;
   createdAt: Date;
+
+  mp_subscription_id?: string | null;
+  subscription_status?: string;
+  next_payment_date?: Date | null;
 }
 
 
@@ -39,7 +43,11 @@ export const restoSchema = new Schema<IResto>({
   menu: menuSchema,
   config: configSchema,
   style: styleSchema,
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+
+  mp_subscription_id: { type: String, default: null },
+  subscription_status: { type: String, default: "inactive" },
+  next_payment_date: { type: Date, default: null }
 });
 
 export default model<IResto>("Resto", restoSchema);

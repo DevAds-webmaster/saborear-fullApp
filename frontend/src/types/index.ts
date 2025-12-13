@@ -76,6 +76,10 @@ export interface Resto {
   config: Config;
   style: Style;
   createdAt: string;
+
+  mp_subscription_id?: string | null;
+  subscription_status?: string;
+  next_payment_date?: string | null;
 }
 
 export interface Style {
