@@ -13,6 +13,8 @@ Thumbs.db
 # === Dependencias ===
 node_modules/
 **/node_modules/
+api/node_modules/
+frontend/node_modules/
 
 # === Documentos ===
 docs/
@@ -37,9 +39,9 @@ coverage/
 .env
 .env.local
 !.env.example
-backend/.env
-backend/.env.*
-!backend/.env.example
+api/.env
+api/.env.*
+!api/.env.example
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
