@@ -78,10 +78,10 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto, cart 
 
                 <li 
                   key={index} 
-                  className={"flex flex-row items-start justify-between gap-4 px-3 w-full h-full  py-5 place-self-center "+(style?.principalSectionStyles.itemContainer) +" " + (option?.optionsConfig.enableItemModals &&" "&& style?.principalSectionStyles.itemHover)}
+                  className={"flex flex-row items-start justify-between gap-4 px-3 w-full h-full  py-5 place-self-center "+(style?.principalSectionStyles.itemContainer) +" " + (option?.optionsConfig.enableItemModals && dish.image?.secure_url && " " && style?.principalSectionStyles.itemHover)}
                   onClick={()=> (
                     option?.optionsConfig.enableItemModals && 
-                            dish.image?.secure_url && (() => setModalData({
+                            dish.image?.secure_url &&  setModalData({
                                                   image: getDishImageUrl(dish.image, 1000),
                                                   category: dish.category,
                                                   title: dish.title,
@@ -92,7 +92,7 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto, cart 
                                                   featuredTextColor: dish.featuredTextColor,
                                                   glutenFree: dish.glutenFree,
                                                   veggie: dish.veggie
-                                              }))
+                                              })
                     )}
                   >
                   {(dish['featuredText'] && 
@@ -116,7 +116,7 @@ export const PrincipalSection: React.FC<PrincipalSectionProps> = ({ resto, cart 
                     <div className="font-bold italic text-lg">{dish.title}</div>
                     {
                       dish.description?
-                      <div className="text-sm text-gray-500">{(dish.description.length > 100 ?dish.description.substr(0,100)+'...' : dish.description)}</div>  
+                      <div className="text-sm text-gray-500">{(dish.image?.secure_url && dish.description.length > 100 ?dish.description.substr(0,100)+'...' : dish.description)}</div>  
                       :
                       <></>
                     }<div className="flex flex-row ">

@@ -2,6 +2,7 @@ import { Schema, model, Document } from "mongoose";
 
 
 export interface IStyle {
+    colorBackground: string;
     headerStyles:{
         container: string;
         sloganStyle: string;
@@ -82,7 +83,7 @@ export const dspComStylesSchema = new Schema<IDspComStyles>({
 
 
 export const styleSchema = new Schema<IStyle>({
-
+    colorBackground: { type: String, required: true },
     headerStyles:{
         container: { type: String, required: true },
         sloganStyle: { type: String, required: true }

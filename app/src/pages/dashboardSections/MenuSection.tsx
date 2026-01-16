@@ -304,33 +304,35 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
           >
             <div
               onClick={() => toggleCategory(cat._id)}
-              className="w-full text-left p-3 flex  items-center bg-gray-100 cursor-pointer"
+              className="w-full text-left p-3 flex  flex-col sm:flex-row items-center bg-gray-100 cursor-pointer"
             >
-              <MoveIcon size={16} className="mr-3 text-gray-500 cursor-move" />
-              <span className="font-semibold w-60 border-r-2">{cat.name}</span>
-              <span className="ml-3 text-xs text-gray-600">Orden #{cat.config.orderCat}</span>
-              
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openModal("category", cat)
-                }}
-                className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mx-2"
-              >
-                Editar
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteCategory(cat._id)
-                }}
-                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 mx-2"
-              >
-                Eliminar
-              </button>
-
-              <span className="ml-auto">{expandedCat === cat._id ? "▲" : "▼"}</span>
-            </div>
+              <div className="flex items-center gap-2">
+                <MoveIcon size={16} className="mr-3 text-gray-500 cursor-move" />
+                <span className="font-semibold w-32 max-w-60 border-r-2">{cat.name}</span>
+                <span className="ml-3 text-xs text-gray-600">Orden #{cat.config.orderCat}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openModal("category", cat)
+                    }}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mx-2"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteCategory(cat._id)
+                    }}
+                    className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 mx-2"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+            <span className="ml-auto">{expandedCat === cat._id ? "▲" : "▼"}</span>
+          </div>
 
             {expandedCat === cat._id && (
               <div className="p-3 space-y-2">
@@ -345,16 +347,17 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
 
                 <ul className="divide-y">
                   {cat.dishes.map((dish) => (
-                    <li key={dish._id} className="flex justify-between items-start py-3 gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className="w-20 h-20 bg-gray-100 flex items-center justify-center overflow-hidden rounded">
+                    <li key={dish._id} className="flex flex-col sm:flex-row justify-between items-start py-3 gap-3">
+                      <div className="flex  items-start gap-3">
+                        <div className="w-20 h-20 bg-gray-200 flex items-center justify-center overflow-hidden rounded">
                           {dish.image?.secure_url ? (
                             <img src={getDishImageUrl(dish.image, 160)} alt={dish.title} className="object-cover w-full h-full" />
                           ) : (
                             <span className="text-xs text-gray-400">Sin imagen</span>
                           )}
                         </div>
-                        <div>
+                      </div>
+                      <div className="flex-1">
                           <p className="font-medium">{dish.title}</p>
                           <div className="text-sm text-gray-600 mt-1 max-w-md">
                             {dish.description || 'Sin descripción'}
@@ -389,17 +392,16 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
                             )}
                           </div>
                         </div>
-                      </div>
                       <div className="flex gap-2">
                         <button
                           onClick={() => openModal("dish", dish, cat._id)}
-                          className="text-blue-600 hover:underline"
+                          className="text-blue-600 hover:underline px-3 py-1 rounded hover:bg-blue-100 bg-blue-100"
                         >
                           Editar
                         </button>
                         <button
                           onClick={() => deleteDish(cat._id, dish._id)}
-                          className="text-red-600 hover:underline"
+                          className="text-red-600 hover:underline px-3 py-1 rounded hover:bg-red-100 bg-red-100"
                         >
                           Eliminar
                         </button>
@@ -523,7 +525,7 @@ function Modal({ type, item, onCancel, onConfirm, orderLabel }: any) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white p-5 rounded-lg shadow-md w-80">
+      <div className="bg-white p-5 rounded-lg shadow-md overflow-y-auto h-0.9 md:h-auto w-80 md:w-100">
         <h2 className="text-lg font-semibold mb-4">
           {item ? "Editar" : "Crear"} {type === "category" ? `Categoría${orderLabel ? ` (Orden #${orderLabel})` : ''}` : "Plato"}
         </h2>

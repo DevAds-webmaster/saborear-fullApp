@@ -9,9 +9,9 @@ import { useReactToPrint } from 'react-to-print';
 export const QRSection = ({cart}:{cart:boolean}) =>{
 
     const {resto} = useResto();
-    const hostURL = window.location.origin;
+    const hostURL = import.meta.env.VITE_MENU_PUBLIC_URL;
     
-    const fullURL = `${hostURL}/${cart ? 'menu-cart' : 'menu'}/${resto?.slug}`;
+    const fullURL = `${hostURL}/${resto?.slug}${cart ? '?cart=true' : ''}`;
     const logoUrl = resto?.config?.srcImgLogoDashboard?.secure_url || resto?.config?.srcImgLogo?.secure_url;
 
     const componenteRef = useRef<HTMLDivElement>(null);
@@ -58,13 +58,17 @@ export const QRSection = ({cart}:{cart:boolean}) =>{
         }, [size]);
     
         const finalSize = size && size > 0 ? size : (autoSize || 100);
-        const overlaySize = Math.round(finalSize * 0.28);
     
         return (
             <div
                 ref={wrapperRef}
-                className="relative inline-block content-center"
-                style={{ width: size && size > 0 ? size : '100%', height: size && size > 0 ? size : '100%' }}
+                className="qr-wrapper relative inline-block content-center"
+                style={{
+                    width: size && size > 0 ? size : '100%',
+                    height: 'auto',              // antes 100%
+                    maxHeight: '100%',
+                    aspectRatio: '1 / 1',
+                }}
             >
                 <QRCodeCanvas
                     value={fullURL}
@@ -75,11 +79,14 @@ export const QRSection = ({cart}:{cart:boolean}) =>{
                     includeMargin={true}
                     className="cursor-pointer"
                     onClick={() => window.open(fullURL, "_blank")}
+                    style={{ width: '100%', height: 'auto' }}   // clave: que el canvas siga al contenedor
                 />
+    
                 {withLogo && logoUrl && (
                     <div className="absolute inset-0 flex items-center justify-center" style={{ pointerEvents: 'none' }}>
-                        <div style={{ backgroundColor: '#ffffff', borderRadius: 9999, padding: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <img src={logoUrl} alt="logo" style={{ width: overlaySize - 20, height: overlaySize - 20, objectFit: 'contain', borderRadius: 9999 }} />
+                        {/* círculo = 28% del lado del contenedor, siempre centrado */}
+                        <div style={{ backgroundColor: '#ffffff', borderRadius: 9999, width: '28%', aspectRatio: '1 / 1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <img src={logoUrl} alt="logo" style={{ width: '80%', height: '80%', objectFit: 'contain', borderRadius: 9999 }} />
                         </div>
                     </div>
                 )}
@@ -102,7 +109,7 @@ export const QRSection = ({cart}:{cart:boolean}) =>{
 
     return(
        
-    <div className="flex"  >
+    <div className="flex sm:flex-row flex-col items-center justify-center sm:items-start sm:justify-start"  >
         <div ref={componenteRef}>
             <QRWithOverlay size={200} />
         </div>
@@ -135,7 +142,7 @@ export const QRSection = ({cart}:{cart:boolean}) =>{
                         <button onClick={() => setPrintModalOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
                     </div>
 
-                    <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4 overflow-y-auto sm:overflow-y-hidden" style={{ maxHeight: '70vh' }}>
                         <div className="space-y-3">
                             <div className="font-medium">Formato de grilla</div>
                             <label className="flex items-center gap-2">
@@ -155,24 +162,37 @@ export const QRSection = ({cart}:{cart:boolean}) =>{
 
                         <div className="lg:col-span-2" style={{ overflowY: 'auto', height: '70vh' }}>
                             {/* Área imprimible (preview + print target) */}
-                            <div ref={printRef} className="border bg-white mx-auto w-full h-full" style={{ padding: '10mm' }}>
+                            <div ref={printRef} className="print-page bg-white mx-auto w-full h-full" style={{ padding: '10mm' }}>
                                 {/* Estilo de página para impresión */}
                                 <style>
-                                    {`@page { size: A4; width: 210mm; height: 297mm;}`}
+                                    {`@page { size: A4; margin: 0; }
+                                    @media print {
+                                        html, body { margin: 0 !important; padding: 0 !important; }
+                                        .print-page {
+                                        width: calc(210mm - 2mm);     /* ~1% menos de ancho */
+                                        height: calc(297mm - 2mm);    /* ~1% menos de alto */
+                                        padding: 10mm;
+                                        box-sizing: border-box;
+                                        border: 0 !important;
+                                        }
+                                        .qr-wrapper canvas { width: 100% !important; height: 100% !important; }
+                                    }`}
                                 </style>
                                 {(() => {
                                     const { cols, rows } = getGridSpec(layout);
                                     const total = cols * rows;
+                                    const center = total === 1; // solo 1 QR
+
                                     return (
                                         <div
-                                            className="w-full h-full grid gap-4"
-                                            style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)` }}
+                                        className={`w-full h-full grid gap-4 ${center ? 'place-items-center' : ''}`}
+                                        style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)` }}
                                         >
-                                            {Array.from({ length: total }).map((_, idx) => (
-                                                <div key={idx} className="flex items-center justify-center p-2">
-                                                    <QRWithOverlay />
-                                                </div>
-                                            ))}
+                                        {Array.from({ length: total }).map((_, idx) => (
+                                            <div key={idx} className="flex w-full h-full items-center justify-center p-2">
+                                            <QRWithOverlay />
+                                            </div>
+                                        ))}
                                         </div>
                                     );
                                 })()}

@@ -1,9 +1,7 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   LayoutGrid,
   PaintRoller,
-  DollarSign,
-  BarChart3,
   ShoppingCart,
   Menu,
   LogOut,
@@ -30,8 +28,8 @@ export default function DashboardNav({ active, onChange }:any) {
     { id: "menu", label: "Gestión de Menú", icon: <Soup  size={20} /> },
     { id: "visual", label: "Personalización Visual", icon: <PaintRoller size={20} /> },
     { id: "cart", label: "Gestión de Carrito", icon: <ShoppingCart size={20} /> },
-    { id: "payments", label: "Suscripción y Pagos", icon: <DollarSign size={20} /> },
-    //{ id: "stats", label: "Estadísticas", icon: <BarChart3 size={20} /> },
+    // { id: "payments", label: "Suscripción y Pagos", icon: <DollarSign size={20} /> },
+    // { id: "stats", label: "Estadísticas", icon: <BarChart3 size={20} /> },
     { id: "config", label: "Configuracion", icon: <Bolt  size={20} /> },
   ];
 

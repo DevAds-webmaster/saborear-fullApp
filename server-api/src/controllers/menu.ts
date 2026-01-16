@@ -26,7 +26,7 @@ class menuController {
         try {
             const resto = await Resto.findById(req.params.id);
             if (!resto) return res.status(404).json({ error: "Restó no encontrado" });
-            res.json(resto.menu);
+            res.json((resto as any).menu);
         } catch (error) {
             res.status(500).json({ error: "Error al obtener restó" });
         }
@@ -57,7 +57,7 @@ class menuController {
         try {
             const resto = await Resto.findOne({ name: req.body.nombre });
             if(!resto) return res.status(404).json({ error: "Restó no encontrado" });
-            res.json(resto.menu);
+            res.json((resto as any).menu);
         } catch (error) {
             res.status(500).json({ error: "Error al obtener restó" });
         }

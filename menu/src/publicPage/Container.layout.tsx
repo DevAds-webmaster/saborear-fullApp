@@ -3,7 +3,7 @@ import {Header} from './Header.layout';
 import { useEffect,useState } from 'react';
 
 // Importing React Router
-import { Outlet , useParams ,useLocation, useNavigate } from 'react-router-dom';
+import { Outlet , useParams ,useLocation, useSearchParams } from 'react-router-dom';
 
 import { useResto } from '../contexts/RestoContext';
 import { usePublic } from '../contexts/PublicContext.tsx';
@@ -23,15 +23,17 @@ import { ShoppingCart } from 'lucide-react';
 
 
 
-export default function Container ({mode, cart=false,children}:any) {
+export default function Container ({mode, children}:any) {
     const {setResto, resto} =useResto();
     const [option, setOption] = useState<Config | undefined>();
     const [_style, setStyle] = useState<Style | undefined>();
 
     const {setResto: setPublicResto, setBgImage, bgImage, loading, setLoading, getRestoWhatsAppLink} = usePublic();
-    const navigate = useNavigate();
     const [showCart, setShowCart] = useState<boolean>(false);
     const [cartCount, setCartCount] = useState<number>(0);
+
+    const [searchParams] = useSearchParams();
+    const cart = searchParams.get('cart') === 'true';
 
     const pParamModal= getParamValue('paramModal');
     const [modalData ,setModalData] = useState<any>(null);
@@ -57,6 +59,10 @@ export default function Container ({mode, cart=false,children}:any) {
     useEffect(() => {
         const url = option?.srcImgBackground ? getDishImageUrl(option.srcImgBackground, 1600) : undefined;
         setBgImage(url);
+        const favicon = getDishImageUrl(option?.srcImgLogo, 16);
+        if(favicon){
+            document.querySelector('link[rel="icon"]')?.setAttribute('href', favicon);
+        }
     }, [option]);
 
     // Función para manejar el modal
@@ -78,6 +84,7 @@ export default function Container ({mode, cart=false,children}:any) {
           ...cartState.meta,
           restoName: r.name,
           restoSlug: r.slug,
+          cartTemplate: r?.cart_settings?.template,
           currency: "ARS",
         },
       });
@@ -121,8 +128,19 @@ export default function Container ({mode, cart=false,children}:any) {
 
     return (
       <>
-        <div className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
-              style={{ backgroundImage: bgImage ? `url(${bgImage})` : undefined }}>
+        <div 
+            className={currentResto?.config?.flgSolidBackground?
+              "min-h-screen bg-cover bg-center bg-no-repeat bg-fixed "+currentResto?.style?.colorBackground
+            :
+              "min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
+            }
+
+            style={!currentResto?.config?.flgSolidBackground ? 
+            { backgroundImage: bgImage ? `url(${bgImage})` : undefined }
+            :
+            {}
+            }>
+
             <Header mode={mode} />
             <Outlet/>
             {children}

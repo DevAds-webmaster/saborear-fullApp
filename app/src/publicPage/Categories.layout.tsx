@@ -1,12 +1,10 @@
-
-import {ButtonCategory} from './button.component.tsx';
 import {CategorySection} from './Category.section';
 
 
-import type { Menu ,Resto ,Category} from '../types';
+import type { Resto ,Category} from '../types';
 import { useEffect, useState } from 'react'
 //importing Options Config
-import { optionsConfig } from './macros';
+
 
 interface CategoriesLayoutProps {
   resto: Resto | null;
@@ -17,10 +15,6 @@ interface CategoriesLayoutProps {
 
 
 export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto, cart }) => {
-
-   // Estado para el modal
-   const [modalData, setModalData] = useState<any>(null);
-    
    const [menu, setMenu] = useState<Category[] | undefined>([]);
 
    useEffect(()=>{

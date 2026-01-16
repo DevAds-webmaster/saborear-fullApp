@@ -2,7 +2,7 @@
 import {CategorySection} from './Category.section';
 
 
-import type { Menu ,Resto ,Category} from '../types';
+import type { Resto ,Category} from '../types';
 import { useEffect, useState } from 'react'
 
 interface CategoriesLayoutProps {
@@ -14,10 +14,6 @@ interface CategoriesLayoutProps {
 
 
 export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto, cart }) => {
-
-   // Estado para el modal
-   const [modalData, setModalData] = useState<any>(null);
-    
    const [menu, setMenu] = useState<Category[] | undefined>([]);
 
    useEffect(()=>{
@@ -31,7 +27,7 @@ export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto, cart 
 
 
    return (
-    <div className="flex flex-wrap place-content-center py-4">
+    <div className="flex flex-wrap place-content-center py-4 px-4">
       {
         // Filtrar categorías que no son 'Menu Del Dia', no están vacías y están disponibles
         menu
@@ -44,14 +40,18 @@ export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto, cart 
           ?.map((categoryObject, idx) => {
             const categoryName = categoryObject.name; // ajusta si tu propiedad se llama distinto
   
+            // Verificar si es la última categoría
             const isLastOne =
-              categoryObject.dishes.length % 3 === 1 &&
-              idx > categoryObject.dishes.length - 2;
+            menu.length % 3 === 1 &&
+              idx > menu.length - 2;
 
+            // Verificar si es la segunda última categoría
             const isLastTwo =
-              categoryObject.dishes.length % 3 === 2 &&
-              idx > categoryObject.dishes.length - 3;
+            menu.length % 3 === 2 &&
+              idx > menu.length - 3;
 
+
+            // Determinar el tamaño de la categoría
             const sizeClass = isLastOne
               ? "w-full"
               : isLastTwo

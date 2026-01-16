@@ -72,11 +72,11 @@ export function Header ( {mode}:{mode:string} ) {
             <header className={style?.headerStyles.container}>
                 <div className='sm:flex hidden flex-row my-auto px-5 py-1 text-2xl'>
                     <div className='flex flex-col sm:flex-row w-full justify-between items-center'>
-                        <Link  to={'/'} className="place-self-center  object-cover rounded-md">
+                        <div className="place-self-center  object-cover rounded-md">
                             {logoImage && (
                                 <img src={getDishImageUrl(option?.srcImgLogo, 192)}  className="h-24"/>
                             )}
-                        </Link>
+                        </div>
                         {(sloganText && sloganText.length > 0) &&
                             <h1 className={'sm:mr-auto sm:pl-5 '+style?.headerStyles.sloganStyle}>{sloganText}</h1>
                         } 

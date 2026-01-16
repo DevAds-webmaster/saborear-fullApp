@@ -2,10 +2,10 @@ import { useEffect,useState } from 'react'
 import { Link ,useParams,useNavigate } from 'react-router-dom'
 
 // Importing logo and slogan from dataConfig
-import {srcImgLogo,slogan,headerOptions} from './macros';
+
 
 // Importing styles
-import {headerStyles} from './customStyles';
+
 import type { Config, Style } from '../types';
 import { getDishImageUrl } from '../services/media';
 import { useResto } from '../contexts/RestoContext';

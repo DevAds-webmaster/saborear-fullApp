@@ -13,11 +13,8 @@ const AppContent: React.FC = () => {
             <Router>
               <div className="flex flex-col">
                 <Routes>
-                  <Route path="/:slug" element={<Container mode="public" cart={false}/>} >
-                    <Route index element={<Interface mode="public" cart={false}/> } />
-                  </Route>
-                  <Route path="/cart/:slug" element={<Container mode="public" cart={true}/>} >
-                    <Route index element={<Interface mode="public" cart={true}/> } />
+                  <Route path="/:slug" element={<Container mode="public"/>} >
+                    <Route index element={<Interface mode="public"/> } />
                   </Route>
                 </Routes>
               </div>

@@ -4,5 +4,6 @@ import mkcert from 'vite-plugin-mkcert'
 
 export default defineConfig({
   plugins: [react(), mkcert()],
-  server: { https: true, host: true }
+  // Para evitar problemas de tipos en build, https en dev no es necesario
+  server: { host: true }
 })

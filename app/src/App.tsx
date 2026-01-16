@@ -1,22 +1,16 @@
-
-import LandingPage from './pages/Landing';
 import Dashboard from './pages/Dashboard.tsx';
 
 import Container from './publicPage/Container.layout';
 import Interface from './publicPage/Inteface.layout';
-import {CategorySection} from './publicPage/Category.section.tsx';
 
 import { AuthProvider } from './contexts/AuthContext';
 import { RestoProvider } from './contexts/RestoContext';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { PublicProvider } from './contexts/PublicContext.tsx';
 
-import * as AppCSS from './App.css';
-
+import './App.css';
 
 const AppContent: React.FC = () => {
-  const enableMultiPage:boolean = true;
-
 
   return( <>
             <Router>

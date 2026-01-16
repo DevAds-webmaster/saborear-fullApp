@@ -4,13 +4,35 @@ import { formatCurrency } from "./cart";
 
 export const buildWhatsAppMessage = (cart: Cart): string => {
   const currency = cart.meta?.currency ?? "ARS";
-  const header = `Pedido para ${cart.meta?.restoName ?? "mi restaurante"}`;
-  const lines = cart.items.map((it) => {
-    const line = `- ${it.quantity} x ${it.title} — ${formatCurrency(it.unitPrice, currency)}`;
-    return it.note ? `${line}\n  Nota: ${it.note}` : line;
-  });
-  const totals = `\nTotal: ${formatCurrency(cart.totals.total, currency)}`;
 
+  // Construir partes reutilizables
+  const header = `Pedido para ${cart.meta?.restoName ?? "mi restaurante"}`;
+  const itemsText = cart.items
+    .map((it) => {
+      const line = `- ${it.quantity} x ${it.title} — ${formatCurrency(it.unitPrice, currency)}`;
+      return it.note ? `${line}\n  Nota: ${it.note}` : line;
+    })
+    .join("\n");
+  const totalText = `${formatCurrency(cart.totals.total, currency)}`;
+
+  // Si hay plantilla configurada en el Resto, úsala con reemplazo de TAGS
+  const template = cart.meta?.cartTemplate?.trim();
+  if (template && template.length > 0) {
+    const replacements: Record<string, string> = {
+      restoName: cart.meta?.restoName ?? "mi restaurante",
+      items: itemsText,
+      total: totalText,
+      customerName: cart.meta?.customerName ?? "",
+      table: cart.meta?.table ?? "",
+      orderType: cart.meta?.orderType ?? "",
+      address: cart.meta?.address ?? "",
+      phone: cart.meta?.phone ?? "",
+    };
+    return template.replace(/\{(\w+)\}/g, (_, key: string) => replacements[key] ?? "");
+  }
+
+  // Fallback: mensaje por defecto
+  const totals = `\nTotal: ${totalText}`;
   const hasCustomerData =
     !!cart.meta?.customerName || !!cart.meta?.table || !!cart.meta?.orderType || !!cart.meta?.address || !!cart.meta?.phone;
 
@@ -24,12 +46,17 @@ export const buildWhatsAppMessage = (cart: Cart): string => {
       }`.trimEnd()
     : "";
 
-  return [header, ...lines, totals, customer].filter(Boolean).join("\n");
+  const headerAndItems = [header, itemsText].filter(Boolean).join("\n");
+  return [headerAndItems, totals, customer].filter(Boolean).join("\n");
 };
 
 export const buildWhatsAppLink = (phoneE164: string, message: string) => {
-  const encoded = encodeURIComponent(message);
-  return `https://wa.me/${phoneE164}?text=${encoded}`;
+  const normalized = (message ?? "").normalize("NFC"); // usa el emoji real
+  const encoded = encodeURIComponent(normalized);      // codifica una sola vez
+
+  //return `https://wa.me/${phoneE164}?text=${encoded}`;
+  // Alternativa si el navegador interfiere:
+   return `https://api.whatsapp.com/send?phone=${phoneE164}&text=${encoded}`;
 };
 
 export const normalizePhoneForWa = (input: string): string => {

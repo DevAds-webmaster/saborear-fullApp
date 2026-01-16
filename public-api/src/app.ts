@@ -1,14 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import menuRoutes from "./routes/menu.js";
-import authRoutes from "./routes/auth.js";
 import restoRoutes from "./routes/resto.js";
-import macrosRoutes from "./routes/macros.js";
-import mediaRoutes from "./routes/media.js";
-import mpRoutes from "./routes/mpago.js";
-import bodyParser from 'body-parser';
-import path from "path";
 
 dotenv.config();
 
@@ -21,6 +14,8 @@ const allowedOriginsFromEnv = (process.env.CORS_ORIGINS || "")
 const defaultAllowedOrigins = [
   "http://localhost:5173",
   "https://localhost:5173",
+  "https://menu.sabore.ar",
+  "https://sabore.ar",
   ...allowedOriginsFromEnv,
 ];
 
@@ -46,22 +41,12 @@ const app = express();
 
 // Middlewares
 app.use(cors(corsOptions));
-
-// Asegurar que los webhooks acepten JSON aún si cambian content-type
-app.use("/mp/webhooks", express.json({ type: ['application/json', 'text/plain', '*/*'] }));
-
 app.use(express.json());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}));
 
-
+app.set('trust proxy', true);
 
 // Rutas
-app.use("/menu", menuRoutes);
-app.use("/auth", authRoutes);
 app.use("/resto", restoRoutes);
-app.use("/macros", macrosRoutes);
-app.use("/media", mediaRoutes);
-app.use("/mp", mpRoutes);
 
 export default app;
+

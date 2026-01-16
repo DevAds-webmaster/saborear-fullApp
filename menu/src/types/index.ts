@@ -9,13 +9,18 @@ export interface Resto {
   config: Config;
   style: Style;
   createdAt: string;
-
+  cart_settings: CartSettings;
   mp_subscription_id?: string | null;
   subscription_status?: string;
   next_payment_date?: string | null;
 }
 
+export interface CartSettings {
+  template: string;
+}
+
 export interface Style {
+  colorBackground: string;
   headerStyles:{
       container: string;
       sloganStyle: string;
@@ -114,6 +119,7 @@ export interface Config {
   slogan:string; 
   paramModalsEnable : boolean;
   paramModalsDelay : number;
+  flgSolidBackground : boolean;
   srcImgBackground : SignedImage;
   srcImgLogo : SignedImage;
   srcImgLogoDashboard : SignedImage;

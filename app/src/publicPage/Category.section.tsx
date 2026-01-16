@@ -29,7 +29,6 @@ export function CategorySection({categoryName,categoryObject,sizeClass,resto, ca
     },[resto]);
 
     const { category } = useParams();
-    const pCaterogry = category;
 
     // Estado para el modal
     const [modalData, setModalData] = useState<any>(null);

@@ -20,7 +20,6 @@ function Dashboard (){
     const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'cart'| 'payments'| 'stats' | 'config'> ('home');
     const { user, isLoading } = useAuth();
     const {resto ,updateResto ,id, setId,getResto, btnSaveEnabled} = useResto();
-    const [userRestos , setUserRestos] = useState<string[]| undefined >([]);
     const [searchParams] = useSearchParams();
 
 
@@ -40,7 +39,6 @@ function Dashboard (){
     useEffect(()=>{
       if(user){
         console.log("Log - user",user);
-        setUserRestos(user?.restos);
         console.log('useEffect1')
         if(user?.restos.length){
           console.log('useEffect2')

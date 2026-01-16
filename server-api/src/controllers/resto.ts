@@ -29,7 +29,8 @@ class restoController {
         const savedResto = await newResto.save();
     
         // Asociar el ID del Resto al usuario
-        user.restos.push(savedResto._id);
+        // Asegurar tipo ObjectId al pushear
+        user.restos.push(savedResto._id as unknown as mongoose.Types.ObjectId);
         await user.save();
     
         res.status(201).json({

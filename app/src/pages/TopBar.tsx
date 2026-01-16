@@ -1,5 +1,4 @@
 import React, { useState , useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Link,
   Eye,
@@ -14,7 +13,6 @@ import { useResto } from "../contexts/RestoContext";
 export default function TopBar() {
     const {user} = useAuth();
     const {resto, btnSaveEnabled, setBtnSaveEnabled} = useResto();
-    const Navigate = useNavigate();
     const [modalShow,setModalShow] = useState(false);
 
     return <>
@@ -40,7 +38,7 @@ export default function TopBar() {
                       if(!res) return;
                       setBtnSaveEnabled(false);
                   }
-                  Navigate('/menu/'+resto?.slug)
+                  window.location.href = `${import.meta.env.VITE_MENU_PUBLIC_URL}/${resto?.slug}`;
               }}
           >
               Menu Público Sin Carrito &nbsp; <Link/>
@@ -49,7 +47,7 @@ export default function TopBar() {
               title='Menu Público Con Carrito' 
               className="flex bg-blue-500 hover:bg-blue-400 text-white text-sm px-4 py-1 h-fit md:ml-2 rounded-md" 
               onClick={()=> {
-                  Navigate('/menu-cart/'+resto?.slug)
+                  window.location.href = `${import.meta.env.VITE_MENU_PUBLIC_URL}/${resto?.slug}?cart=true`;
               }}
           >
               Menu Público con Carrito &nbsp; <ShoppingCart/>
@@ -159,6 +157,16 @@ function PreviewModal({ open, onClose }: any) {
                 <div 
                     className="cursor-move flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg"
                     onMouseDown={handleMouseDown}
+                    onTouchStart={(e) => {
+                      const t = e.touches[0];
+                      handleMouseDown({ clientX: t.clientX, clientY: t.clientY } as any);
+                    }}
+                   
+                    onTouchEnd={() => {
+                      // si usas handleMouseUp enlazado a window, omite esto
+                      // handleMouseUp();
+                    }}
+                    style={{ touchAction: 'none' }}  // evita que el navegador capture el gesto para scroll/zoom
                     title="Arrastrar para mover">
                     <div className="flex items-center gap-2">
                         <div className=" p-1 hover:bg-gray-200 rounded transition-colors">

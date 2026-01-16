@@ -15,6 +15,7 @@ export interface CartMeta {
   restoName?: string;
   restoSlug?: string;
   currency?: string;
+  cartTemplate?: string;
   customerName?: string;
   table?: string;
   orderType?: "local" | "retiro" | "delivery";

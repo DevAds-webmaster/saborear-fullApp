@@ -5,8 +5,6 @@ import { mpCheckAccess } from "../../services/mercadoPago";
 
 const HomeSection: React.FC = ()=> {
   const { id: restoId } = useResto();
-  const [subStatus, setSubStatus] = useState<string | null>(null);
-  const [nextCharge, setNextCharge] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -14,25 +12,14 @@ const HomeSection: React.FC = ()=> {
       if (!restoId) return;
       try {
         setLoading(true);
-        const res = await mpCheckAccess(restoId);
-        setSubStatus(res.status ?? (res.allow ? "authorized" : "inactive"));
-        setNextCharge(res.next_payment_date ?? null);
+        await mpCheckAccess(restoId);
       } catch {
-        setSubStatus(null);
-        setNextCharge(null);
       } finally {
         setLoading(false);
       }
     };
     void fetchStatus();
   }, [restoId]);
-
-  const renderNextCharge = () => {
-    if (!nextCharge) return "—";
-    const d = new Date(nextCharge);
-    if (Number.isNaN(d.getTime())) return "—";
-    return d.toLocaleString();
-  };
 
   return (
     <div>
@@ -56,13 +43,13 @@ const HomeSection: React.FC = ()=> {
             <div className="text-sm">
               <p>
                 <span className="text-gray-500">Estado:</span>{" "}
-                <span className={subStatus === "authorized" ? "text-green-600" : "text-gray-800"}>
-                  {subStatus ?? "Desconocido"}
+                <span className="text-green-600">
+                  Activo
                 </span>
               </p>
               <p className="mt-1">
                 <span className="text-gray-500">Próximo débito:</span>{" "}
-                <span>{renderNextCharge()}</span>
+                <span> No Aplica</span>
               </p>
             </div>
           )}

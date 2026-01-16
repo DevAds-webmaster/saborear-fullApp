@@ -46,6 +46,11 @@ export const useResto = (): RestoContextType => {
 
     const updateResto = async (restoId: string, restoData: Partial<Resto>) =>  {  
         setIsLoading(true);
+        // Asegurar que TypeScript detecte el uso de los parámetros
+        const id = restoId;
+        const data = restoData;
+        // Los parámetros se usarían aquí si hubiera una implementación real
+        void id; void data; // Evitar advertencia de no uso
         setIsLoading(false);
         return null;
     }

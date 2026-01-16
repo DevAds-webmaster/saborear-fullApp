@@ -4,6 +4,8 @@ import type { IMenu } from "./Menu.js";
 import { parametersSchema } from "./Parameters.js";
 import type { IParameters } from "./Parameters.js";
 import type { IConfig } from "./Config.js";
+import type { ICartSettings } from "./CartSettings.js";
+import { cartSettingsSchema } from "./CartSettings.js";
 import { configSchema } from "./Config.js";
 import type { IStyle } from "./Style.js";
 import { styleSchema } from "./Style.js";
@@ -15,6 +17,7 @@ export interface IResto extends Document {
   slug: string;
   phone?: string;
   address?: string;
+  cart_settings: ICartSettings;
   params: IParameters[];
   menu: IMenu;
   config: IConfig;
@@ -39,6 +42,7 @@ export const restoSchema = new Schema<IResto>({
   },
   phone: { type: String },
   address: { type: String },
+  cart_settings: cartSettingsSchema,
   params: [parametersSchema],
   menu: menuSchema,
   config: configSchema,
@@ -51,3 +55,4 @@ export const restoSchema = new Schema<IResto>({
 });
 
 export default model<IResto>("Resto", restoSchema);
+

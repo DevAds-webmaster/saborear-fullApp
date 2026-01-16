@@ -133,6 +133,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
   };
 
   const keyMap: Record<string, string> = {
+    "bk.color": "colorBackground",
     "header.container": "headerStyles.container",
     "header.sloganStyle": "headerStyles.sloganStyle",
     "categorySection.container": "categorySectionStyles.container",
@@ -229,6 +230,26 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
       </div>
 
       <div className="space-y-6 border p-5 rounded-lg">
+        {/* Background Color */}
+        <section>
+          <h2 className="text-lg font-semibold">Background Color</h2>
+          <p className="text-sm text-gray-500">Color sólido de fondo del menu (Solo si se activa el fondo sólido en la configuración).</p>
+          <div className="mt-2 grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm">Color</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'colorBackground') || ''}
+                onChange={(e) => handleSelectChange('colorBackground', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['bk.color']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </section>
         {/* Header Section */}
         <section>
           <h2 className="text-lg font-semibold">Header</h2>

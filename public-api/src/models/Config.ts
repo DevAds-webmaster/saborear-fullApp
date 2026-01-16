@@ -36,6 +36,7 @@ export interface IConfig {
     slogan:string; 
     paramModalsEnable : boolean;
     paramModalsDelay : number;
+    flgSolidBackground : boolean;
     srcImgBackground : {
         secure_url: string;
         public_id: string;
@@ -108,6 +109,7 @@ export const configSchema = new Schema<IConfig>({
     slogan:{ type: String, required: true },
     paramModalsEnable : { type: Boolean, required: true },
     paramModalsDelay : { type: Number, required: true },
+    flgSolidBackground : { type: Boolean, required: true },
     srcImgBackground : {
         secure_url: { type: String, required: true },
         public_id: { type: String, required: true },
@@ -132,3 +134,4 @@ export const configSchema = new Schema<IConfig>({
   });
 
 export default model<IConfig>("Config", configSchema);
+

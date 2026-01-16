@@ -7,9 +7,12 @@ import { CategoriesLayout } from './Categories.layout';
 import { usePublic } from '../contexts/PublicContext';
 import { useResto } from '../contexts/RestoContext';
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 
-function Interface({mode, cart}:any) {
+function Interface({mode}:any) {
+  const [searchParams] = useSearchParams();
+  const cart = searchParams.get('cart') === 'true';
   const {resto: publicResto} = usePublic();
   const {restoPreview} = useResto();
   

@@ -34,10 +34,12 @@ export default function Container ({mode, cart=false,children}:any) {
     const [showCart, setShowCart] = useState<boolean>(false);
     const [cartCount, setCartCount] = useState<number>(0);
 
-    const pParamModal= getParamValue('paramModal');
     const [modalData ,setModalData] = useState<any>(null);
 
     const { slug } = useParams();
+    const location = useLocation();
+    const pParamModal = getParamValue('paramModal', location);
+    
     useEffect(() => {
         if(mode ==="preview"){
             const fecthRestoPreview =async ()=>{
@@ -127,6 +129,7 @@ export default function Container ({mode, cart=false,children}:any) {
           ...cartState.meta,
           restoName: r.name,
           restoSlug: r.slug,
+          cartTemplate: r?.cart_settings?.template,
           currency: "ARS",
         },
       });
@@ -167,14 +170,14 @@ export default function Container ({mode, cart=false,children}:any) {
         </div>
         );
     }
-
+    
     return (
       <>
         {mode !== 'preview' && user && (
           <div className="w-full bg-indigo-600 text-white">
             <div className="max-w-7xl mx-auto py-2 flex justify-center">
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/')}
                 className="bg-white text-indigo-700 px-4 py-2 rounded font-medium shadow hover:bg-gray-100"
                 title="Volver al dashboard"
               >
@@ -183,8 +186,18 @@ export default function Container ({mode, cart=false,children}:any) {
             </div>
           </div>
         )}
-        <div className="min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
-              style={{ backgroundImage: bgImage ? `url(${bgImage})` : undefined }}>
+        <div 
+        className={currentResto?.config?.flgSolidBackground?
+            "min-h-screen bg-cover bg-center bg-no-repeat bg-fixed "+currentResto?.style?.colorBackground
+          :
+            "min-h-screen bg-cover bg-center bg-no-repeat bg-fixed"
+        }
+
+        style={!currentResto?.config?.flgSolidBackground ? 
+          { backgroundImage: bgImage ? `url(${bgImage})` : undefined }
+        :
+          {}
+        }>
             <Header mode={mode} />
             <Outlet/>
             {children}
@@ -220,9 +233,8 @@ export default function Container ({mode, cart=false,children}:any) {
 }
 
 // Function to get a specific query parameter value from the URL
-export function getParamValue(paramName:string) {
-    const location = useLocation(); // Get location object from React Router, or use window.location if not using Router
-    const queryParams = new URLSearchParams(location.search); // Parse the query string
+function getParamValue(paramName: string, location: ReturnType<typeof useLocation>) {
+    const queryParams = new URLSearchParams(location.search);
     const res = queryParams.get(paramName);
     return res ? res : null;
 }
