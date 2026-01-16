@@ -42,9 +42,10 @@ coverage/
 api/.env
 api/.env.*
 !api/.env.example
-app/.env
+**/.env
 app/.env.*
 !app/.env.example
+
 
 # === Editores ===
 .vscode/
