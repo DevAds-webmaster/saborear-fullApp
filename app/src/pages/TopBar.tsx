@@ -19,11 +19,11 @@ export default function TopBar() {
     <div className="sticky top-0 p-5 z-40 flex flex-col sm:flex-row md:space-y-0 space-y-2 bg-white shadow-lg rounded-lg border-gray-400 border mb-5 md:items-center px-2 w-[90%] ml-auto lg:w-full lg:ml-0">
         <div className="md:space-y-0 space-y-2 md:text-left text-center">
             <p><span className="font-bold">Usuario:</span>&nbsp;&nbsp;{user?.username}</p>
-            <p><span className="font-bold">Email:</span>&nbsp;&nbsp;{user?.email}</p>
+            <p><span className="font-bold">Rol:</span>&nbsp;&nbsp;<span className={` px-2 py-1 rounded-md text-sm  ${user?.role === "admin" ? "text-white bg-green-500" : "text-white bg-gray-500"}`}>{user?.role}</span></p>
         </div>
         <button 
             title='Vista Previa' 
-            className="flex bg-gray-500 hover:bg-gray-400 text-white px-4 py-2 h-fit md:ml-auto rounded-md" 
+            className="flex bg-gray-500 hover:bg-gray-400 text-white px-4 py-2 h-fit sm:ml-auto rounded-md" 
             onClick={()=>setModalShow(true)}
         >
             VistaPrevia &nbsp; <Eye/>
@@ -198,7 +198,7 @@ function PreviewModal({ open, onClose }: any) {
                             />
                             <span className="text-sm text-gray-700">📱 Smartphone</span>
                         </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
+                        <label className="hidden sm:flex items-center gap-2 cursor-pointer">
                             <input
                                 type="radio"
                                 name="format"
@@ -209,7 +209,7 @@ function PreviewModal({ open, onClose }: any) {
                             />
                             <span className="text-sm text-gray-700">📱 Tablet</span>
                         </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
+                        <label className="hidden xl:flex items-center gap-2 cursor-pointer ">
                             <input
                                 type="radio"
                                 name="format"

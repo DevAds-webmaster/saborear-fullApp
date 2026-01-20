@@ -67,69 +67,69 @@ export interface IConfig {
     itemsImages: boolean;
   }
   export const opDspComSchema = new Schema<IOpDspCommercial>({
-    name: { type: String, required: true },
-    sectionTitle :  { type: String, required: true }, // Título del display display de paso
-    bgImage: { type: String, required: true }, // Imagen de fondo del display de paso
-    itemsImages: { type: Boolean, required: true }
+    name: { type: String },
+    sectionTitle :  { type: String }, // Título del display display de paso
+    bgImage: { type: String }, // Imagen de fondo del display de paso
+    itemsImages: { type: Boolean }
   });
 
 
 export const configSchema = new Schema<IConfig>({
     headerOptions : {
-        enableFacebookBtn: { type: Boolean, required: true }, // Si se quiere que se muestre el botón de Facebook
-        enableInstagramBtn: { type: Boolean, required: true },// Si se quiere que se muestre el botón de Instagram
-        enableXBtn: { type: Boolean, required: true }, // Si se quiere que se muestre el botón de Twitter
+        enableFacebookBtn: { type: Boolean }, // Si se quiere que se muestre el botón de Facebook
+        enableInstagramBtn: { type: Boolean },// Si se quiere que se muestre el botón de Instagram
+        enableXBtn: { type: Boolean }, // Si se quiere que se muestre el botón de Twitter
         enableFacebookLink: { type: String},// Si se quiere que se muestre el link a la página de Facebook
         enableInstagramLink: { type: String}, // Si se quiere que se muestre el link a la página de Instagram
         enableXLink: { type: String} // Si se quiere que se muestre el link a la página de Twitter
     },
     footerOptions : {
-        enableFacebookBtn: { type: Boolean, required: true }, // Si se quiere que se muestre el botón de Facebook
-        enableInstagramBtn: { type: Boolean, required: true },// Si se quiere que se muestre el botón de Instagram
-        enableXBtn: { type: Boolean, required: true },// Si se quiere que se muestre el botón de Twitter
+        enableFacebookBtn: { type: Boolean }, // Si se quiere que se muestre el botón de Facebook
+        enableInstagramBtn: { type: Boolean },// Si se quiere que se muestre el botón de Instagram
+        enableXBtn: { type: Boolean },// Si se quiere que se muestre el botón de Twitter
         FacebookAlias: { type: String}, // Si se quiere que se muestre el link a la página de Facebook
         InstagramAlias: { type: String }, // Si se quiere que se muestre el link a la página de Instagram
         XAlias: { type: String} // Si se quiere que se muestre el link a la página de Twitter
     },
     optionsConfig : {
-        enableMultiPage: { type: Boolean, required: true },// Si se quiere que la app funcione como una multi-page, con rutas para cada categoria
-        enableItemModals: { type: Boolean, required: true }, // Si se quiere que se muestren los modales de los diferentes platos
-        enableParamModals: { type: Boolean, required: true }, // Si se quiere que se muestren los modales de promociones al recibir parametros en la URL
-        enableDisplayDePaso: { type: Boolean, required: true }, // Si se quiere que la app pueda ser visualizada en minitor iteractivo en vereda
-        enableCommercialDisplay: { type: Boolean, required: true }, // Si se quiere que la app pueda ser visualizada en pantalla comercial
+        enableMultiPage: { type: Boolean },// Si se quiere que la app funcione como una multi-page, con rutas para cada categoria
+        enableItemModals: { type: Boolean }, // Si se quiere que se muestren los modales de los diferentes platos
+        enableParamModals: { type: Boolean }, // Si se quiere que se muestren los modales de promociones al recibir parametros en la URL
+        enableDisplayDePaso: { type: Boolean }, // Si se quiere que la app pueda ser visualizada en minitor iteractivo en vereda
+        enableCommercialDisplay: { type: Boolean }, // Si se quiere que la app pueda ser visualizada en pantalla comercial
         optionsDisplayCommercial: [opDspComSchema],
         qtyCommercialDisplay: { type: Number} // Cantidad de displays comerciales que se quieren mostrar
     },
     optionsDisplayDePaso : {
-        sectionTitle : { type: String, required: true }, // Título del display display de paso
-        bgImage: { type: String, required: true }, // Imagen de fondo del display de paso
-        enableItemModals: { type: Boolean, required: true }, // Si se quiere que se muestren los modales de los diferentes platos
-        delayCloseModal: { type: Number, required: true } // Tiempo en milisegundos para cerrar el modal de los platos
+        sectionTitle : { type: String }, // Título del display display de paso
+        bgImage: { type: String }, // Imagen de fondo del display de paso
+        enableItemModals: { type: Boolean }, // Si se quiere que se muestren los modales de los diferentes platos
+        delayCloseModal: { type: Number } // Tiempo en milisegundos para cerrar el modal de los platos
     },
-    slogan:{ type: String, required: true },
-    paramModalsEnable : { type: Boolean, required: true },
-    paramModalsDelay : { type: Number, required: true },
-    flgSolidBackground : { type: Boolean, required: true },
+    slogan:{ type: String },
+    paramModalsEnable : { type: Boolean },
+    paramModalsDelay : { type: Number },
+    flgSolidBackground : { type: Boolean },
     srcImgBackground : {
-        secure_url: { type: String, required: true },
-        public_id: { type: String, required: true },
-        width: { type: Number, required: false },
-        height: { type: Number, required: false },
-        format: { type: String, required: false }
+        secure_url: { type: String },
+        public_id: { type: String },
+        width: { type: Number },
+        height: { type: Number },
+        format: { type: String }
     },
     srcImgLogo : {
-        secure_url: { type: String, required: true },
-        public_id: { type: String, required: true },
-        width: { type: Number, required: false },
-        height: { type: Number, required: false },
-        format: { type: String, required: false }
+        secure_url: { type: String },
+        public_id: { type: String },
+        width: { type: Number },
+        height: { type: Number },
+        format: { type: String }
     },
     srcImgLogoDashboard : {
-        secure_url: { type: String, required: true },
-        public_id: { type: String, required: true },
-        width: { type: Number, required: false },
-        height: { type: Number, required: false },
-        format: { type: String, required: false }
+        secure_url: { type: String },
+        public_id: { type: String },
+        width: { type: Number },
+        height: { type: Number },
+        format: { type: String }
     }
   });
 

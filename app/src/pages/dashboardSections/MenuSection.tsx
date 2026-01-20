@@ -1,8 +1,9 @@
 import React, { useState ,useEffect} from "react";
 import { MoveVertical  as MoveIcon } from "lucide-react";
-import type { Resto, Menu, Category, Dish } from "../../types";
+import type { Resto, Menu, Category, Dish,MDC } from "../../types";
 import { useResto } from '../../contexts/RestoContext';
 import { getImageKitAuth, uploadToImageKit, getDishImageUrl } from "../../services/media";
+import { ObjectId } from 'bson';
 
 interface MenuSectionProps {
   resto: Resto | null;
@@ -17,7 +18,7 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
   const [dragCatIndex, setDragCatIndex] = useState<number | null>(null);
   const [categoryModalOrder, setCategoryModalOrder] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState<"category" | "dish" | null>(null);
+  const [modalType, setModalType] = useState<"category" | "dish" | "mdc" | null>(null);
   const [editingItem, setEditingItem] = useState<Category | Dish | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const {btnSaveEnabled,setBtnSaveEnabled,restoPreview,setRestoPreview} = useResto();
@@ -37,7 +38,7 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
   };
 
   // 🔹 Abrir modal
-  const openModal = (type: "category" | "dish", item: any = null, categoryId?: string) => {
+  const openModal = (type: "category" | "dish" | "mdc", item: any = null, categoryId?: string) => {
     setModalType(type);
     setEditingItem(item);
     setSelectedCategoryId(categoryId || null);
@@ -60,7 +61,7 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
   // 🔹 Guardar cambios desde modal (crear/editar)
   const handleSaveModal = (data: any) => {
     if (!localMenu) return;
-
+    const newObjectId = () => new ObjectId().toHexString();
     if (modalType === "category") {
       if (editingItem) {
         // Editar categoría
@@ -80,7 +81,7 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
         // Crear categoría
         const cfg = data.config || {};
         const newCat: Category = {
-          _id: crypto.randomUUID(),
+          _id: newObjectId(),
           name: data.name,
           config: {
             availableCat: cfg.availableCat ?? true,
@@ -106,6 +107,17 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
       }
     }
 
+    // Guardar Menú del Día (MDC)
+    if (modalType === "mdc") {
+      setLocalMenu({
+        ...localMenu,
+        menu_day_config: {
+          ...localMenu.menu_day_config,
+          ...data,
+        } as MDC,
+      });
+    }
+
     if (modalType === "dish" && selectedCategoryId) {
       setLocalMenu({
         ...localMenu,
@@ -122,7 +134,7 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
             } else {
               // Crear nuevo plato
               const newDish: Dish = {
-                _id: crypto.randomUUID(),
+                _id: newObjectId(),
                 title: data.title,
                 price: parseFloat(data.price) || 0,
                 discountPrice: 0,
@@ -276,7 +288,41 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
         
       </div>
 
-      <div className="space-y-3 h-[75vh] border p-5 rounded-lg overflow-y-auto">
+      <div id="categories-container" className="space-y-3 h-[75vh] border p-5 rounded-lg overflow-y-auto">
+        {/* Tarjeta fija: Menú del Día (MDC) */}
+        <div className="border rounded-lg shadow-sm bg-white">
+          <div
+            className="w-full text-left p-3 flex flex-col sm:flex-row items-center bg-gray-100"
+          >
+            <div className="flex items-center gap-2">
+              <span className="font-semibold w-32 max-w-60 border-r-2">Categoría Destacada</span>
+              <span className="ml-3 text-xs text-gray-600">
+                {localMenu.menu_day_config?.titleCat || "Sin título"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 ml-auto">
+              <button
+                onClick={() => openModal("mdc", localMenu.menu_day_config)}
+                className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 mx-2"
+              >
+                Editar
+              </button>
+            </div>
+          </div>
+          <div className="p-3 space-y-2">
+            {localMenu.menu_day_config?.descriptionCat && (
+              <div className="text-sm text-gray-700">{localMenu.menu_day_config.descriptionCat}</div>
+            )}
+            <ul className="list-disc pl-6 text-sm text-gray-700">
+              {Array.from({ length: 10 }).map((_, i) => {
+                const key = `item${i + 1}Cat` as keyof MDC;
+                const val = (localMenu.menu_day_config as any)?.[key];
+                return val ? <li key={key as string}>{val as string}</li> : null;
+              })}
+            </ul>
+          </div>
+        </div>
+
         {localMenu.categories.map((cat, index) => (
           <div
             key={cat._id}
@@ -304,6 +350,7 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
           >
             <div
               onClick={() => toggleCategory(cat._id)}
+              id={`category-${cat._id}`}
               className="w-full text-left p-3 flex  flex-col sm:flex-row items-center bg-gray-100 cursor-pointer"
             >
               <div className="flex items-center gap-2">
@@ -452,6 +499,21 @@ function Modal({ type, item, onCancel, onConfirm, orderLabel }: any) {
               item10Cat: "",
             },
           }
+        : type === "mdc"
+        ? {
+            titleCat: "",
+            descriptionCat: "",
+            item1Cat: "",
+            item2Cat: "",
+            item3Cat: "",
+            item4Cat: "",
+            item5Cat: "",
+            item6Cat: "",
+            item7Cat: "",
+            item8Cat: "",
+            item9Cat: "",
+            item10Cat: "",
+          }
         : {
             title: "",
             description: "",
@@ -527,7 +589,12 @@ function Modal({ type, item, onCancel, onConfirm, orderLabel }: any) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white p-5 rounded-lg shadow-md overflow-y-auto h-0.9 md:h-auto w-80 md:w-100">
         <h2 className="text-lg font-semibold mb-4">
-          {item ? "Editar" : "Crear"} {type === "category" ? `Categoría${orderLabel ? ` (Orden #${orderLabel})` : ''}` : "Plato"}
+          {item ? "Editar" : "Crear"}{" "}
+          {type === "category"
+            ? `Categoría${orderLabel ? ` (Orden #${orderLabel})` : ''}`
+            : type === "mdc"
+            ? "Menú del Día"
+            : "Plato"}
         </h2>
 
         <div className="space-y-3">
@@ -567,6 +634,44 @@ function Modal({ type, item, onCancel, onConfirm, orderLabel }: any) {
                       value={form?.config?.[key] || ""}
                       onChange={handleCategoryConfigText}
                       placeholder={`Item ${i + 1}`}
+                      className="w-full border rounded px-3 py-2"
+                    />
+                  );
+                })}
+              </div>
+            </>
+          ) : type === "mdc" ? (
+            <>
+              <input
+                type="text"
+                name="titleCat"
+                value={form.titleCat || ""}
+                onChange={handleTextChange}
+                placeholder="Título del Menú del Día"
+                className="w-full border rounded px-3 py-2"
+              />
+
+              <label className="block text-sm text-gray-600 mt-3">Descripción</label>
+              <input
+                type="text"
+                name="descriptionCat"
+                value={form.descriptionCat || ""}
+                onChange={handleTextChange}
+                placeholder="Descripción"
+                className="w-full border rounded px-3 py-2"
+              />
+
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                {Array.from({ length: 10 }).map((_, i) => {
+                  const key = `item${i + 1}Cat`;
+                  return (
+                    <input
+                      key={key}
+                      type="text"
+                      name={key}
+                      value={form[key] || ""}
+                      onChange={handleTextChange}
+                      placeholder={`Ítem ${i + 1}`}
                       className="w-full border rounded px-3 py-2"
                     />
                   );

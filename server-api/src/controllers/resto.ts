@@ -72,14 +72,17 @@ class restoController {
         if (!user) return res.status(401).json({ error: "Usuario no encontrado" });
         console.log("ID recibido:", req.params.id);
         try {
-            // Verificar si el resto pertenece al usuario
-            if(!user.restos.find(resto => resto._id.toString() === req.params.id.toString())) 
-                return res.status(401).json({ error: "Restó no encontrado ó no pertenece al usuario" });
-            
+            // Verificar si el resto pertenece al usuario admin o staff
+            if(user.role === "admin"  && !user.restos.find(resto => resto._id.toString() === req.params.id.toString())) 
+                return res.status(401).json({ error: "Restó no encontrado ó no pertenece al usuario admin" });
+            else if(user.role === "staff"  && user.resto._id.toString() !== req.params.id.toString() ) 
+                return res.status(401).json({ error: "Restó no encontrado ó no pertenece al usuario staff" });
+
             const resto = await Resto.findByIdAndUpdate(req.params.id, restoData, { new: true });
 
             res.json(resto);
         } catch (error) {
+            console.error(error);
             res.status(500).json({ error: "Error al actualizar restó" });
         }
     }

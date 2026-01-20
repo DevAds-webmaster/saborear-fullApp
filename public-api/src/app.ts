@@ -13,7 +13,7 @@ const allowedOriginsFromEnv = (process.env.CORS_ORIGINS || "")
 // Permitir localhost http/https y dominios dinámicos comunes de túneles
 const defaultAllowedOrigins = [
   "http://localhost:5173",
-  "https://localhost:5173",
+  "http://localhost:5174",
   "https://menu.sabore.ar",
   "https://sabore.ar",
   ...allowedOriginsFromEnv,

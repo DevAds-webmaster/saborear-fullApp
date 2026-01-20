@@ -8,6 +8,7 @@ export interface CartItem {
 
 export interface CartTotals {
   subtotal: number;
+  deliveryFee: number;
   total: number;
 }
 

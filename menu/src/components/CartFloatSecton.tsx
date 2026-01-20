@@ -12,6 +12,7 @@ interface CartFloatSectonProps {
 
 export const CartFloatSecton: React.FC<CartFloatSectonProps> = ({ open, onClose, resto, handleSend }) => {
   const slug = resto?.slug || "";
+  const deliveryFee = resto?.cart_settings?.deliveryFee || 0;
   const currency = "ARS";
   const [cart, setCart] = useState<Cart>(() => loadCart(slug));
   const [customerName, setCustomerName] = useState<string>("");
@@ -27,6 +28,15 @@ export const CartFloatSecton: React.FC<CartFloatSectonProps> = ({ open, onClose,
     setOrderType(cart.meta?.orderType);
     setAddress(cart.meta?.address || "");
   }, [cart]);
+
+  useEffect(() => {
+    if (orderType === "delivery" && deliveryFee > 0) {
+      const totals = computeTotals(cart.items, deliveryFee);
+      const next = { ...cart, totals };
+      setCart(next);
+      if (slug) saveCart(slug, next);
+    }
+  }, [orderType, deliveryFee]); 
 
   const isEmpty = useMemo(() => cart.items.length === 0, [cart.items]);
 
@@ -47,7 +57,14 @@ export const CartFloatSecton: React.FC<CartFloatSectonProps> = ({ open, onClose,
     const current = items[index];
     if (!current) return;
     items[index] = { ...current, note: nextNote };
-    const totals = computeTotals(items);
+    if (orderType === "delivery" && deliveryFee > 0) {
+      const totals = computeTotals(items, deliveryFee);
+      const next = { ...cart, items, totals };
+      setCart(next);
+      if (slug) saveCart(slug, next);
+      return;
+    }
+    const totals = computeTotals(items, 0);
     const next = { ...cart, items, totals };
     setCart(next);
     if (slug) saveCart(slug, next);
@@ -58,7 +75,15 @@ export const CartFloatSecton: React.FC<CartFloatSectonProps> = ({ open, onClose,
       ...(cart.meta || {}),
       [field]: field === "orderType" ? (value as any) : value,
     };
-    const next = { ...cart, meta: nextMeta };
+    if (field === "orderType" && value === "delivery" && deliveryFee > 0) {
+      const totals = computeTotals(cart.items, deliveryFee);
+      const next = { ...cart, meta: nextMeta, totals };
+      setCart(next);
+      if (slug) saveCart(slug, next);
+      return;
+    }
+    const totals = computeTotals(cart.items, 0);
+    const next = { ...cart, meta: nextMeta, totals };
     setCart(next);
     if (slug) saveCart(slug, next);
   };
@@ -173,9 +198,30 @@ export const CartFloatSecton: React.FC<CartFloatSectonProps> = ({ open, onClose,
         </div>
 
         <div className="p-4 border-t">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-gray-600">Total</span>
-            <span className="font-semibold">{formatCurrency(cart.totals.total, currency)}</span>
+        <div className="flex items-center justify-between mb-3">
+            {orderType === "delivery" &&  deliveryFee > 0 && (
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">Precio Delivery</span>
+                  <span className="font-semibold">{formatCurrency(deliveryFee, currency)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">Sub Total</span>
+                  <span className="font-semibold">{formatCurrency(cart.totals.subtotal, currency)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">Total</span>
+                  <span className="font-semibold">{formatCurrency(cart.totals.total, currency)}</span>
+                </div>
+              </div>
+            )}
+            {(orderType !== "delivery" || (deliveryFee === 0 && orderType === "delivery")) && (
+              <div className="flex items-center gap-2">
+                 <span className="text-gray-600">Total</span>
+                 <span className="font-semibold">{formatCurrency(cart.totals.total, currency)}</span>
+              </div>
+            )}
+           
           </div>
           <button
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-medium disabled:opacity-50"

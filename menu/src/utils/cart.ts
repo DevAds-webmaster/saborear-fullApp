@@ -9,10 +9,10 @@ export const getUnitPrice = (dish: Dish) => {
 export const formatCurrency = (value: number, currency = "ARS", locale = "es-AR") =>
   new Intl.NumberFormat(locale, { style: "currency", currency }).format(value);
 
-export const computeTotals = (items: Array<{ unitPrice: number; quantity: number }>) => {
+export const computeTotals = (items: Array<{ unitPrice: number; quantity: number }>, deliveryFee: number) => {
   const subtotal = items.reduce((acc, it) => acc + it.unitPrice * it.quantity, 0);
-  const total = subtotal;
-  return { subtotal, total };
+  const total = subtotal + deliveryFee;
+  return { subtotal, total, deliveryFee };
 };
 
 export const addToCart = (cart: Cart, dish: Dish, quantity = 1, note?: string): Cart => {
@@ -33,7 +33,7 @@ export const addToCart = (cart: Cart, dish: Dish, quantity = 1, note?: string): 
       note,
     });
   }
-  const totals = computeTotals(items);
+  const totals = computeTotals(items, cart.totals.deliveryFee);
   return { ...cart, items, totals };
 };
 
@@ -41,25 +41,25 @@ export const updateQty = (cart: Cart, dishId: string, quantity: number, note?: s
   const items = cart.items
     .map((i) => (i.dishId === dishId && i.note === note ? { ...i, quantity } : i))
     .filter((i) => i.quantity > 0);
-  const totals = computeTotals(items);
+  const totals = computeTotals(items, cart.totals.deliveryFee);
   return { ...cart, items, totals };
 };
 
 export const removeItem = (cart: Cart, dishId: string, note?: string): Cart => {
   const items = cart.items.filter((i) => !(i.dishId === dishId && i.note === note));
-  const totals = computeTotals(items);
+  const totals = computeTotals(items, cart.totals.deliveryFee);
   return { ...cart, items, totals };
 };
 
 export const clearCart = (cart: Cart): Cart => ({
   ...cart,
   items: [],
-  totals: { subtotal: 0, total: 0 },
+  totals: { subtotal: 0, total: 0, deliveryFee: 0 },
 });
 
 export const loadCart = (slug: string): Cart => {
   const raw = typeof window !== "undefined" ? localStorage.getItem(`cart:${slug}`) : null;
-  return raw ? JSON.parse(raw) : { items: [], totals: { subtotal: 0, total: 0 }, meta: { restoSlug: slug } };
+  return raw ? JSON.parse(raw) : { items: [], totals: { subtotal: 0, total: 0, deliveryFee: 0 }, meta: { restoSlug: slug } };
 };
 
 export const saveCart = (slug: string, cart: Cart) => {

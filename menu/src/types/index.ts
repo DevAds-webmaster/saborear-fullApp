@@ -17,6 +17,7 @@ export interface Resto {
 
 export interface CartSettings {
   template: string;
+  deliveryFee: number;
 }
 
 export interface Style {

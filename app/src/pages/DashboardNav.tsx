@@ -8,7 +8,8 @@ import {
   Bolt ,
   Soup,
   X,
-  Edit
+  Edit,
+  Users
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useResto } from "../contexts/RestoContext"; 
@@ -17,21 +18,27 @@ import type { SignedImage, Resto, Config } from "../types";
 
 export default function DashboardNav({ active, onChange }:any) {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
   const [isHoveringLogo, setIsHoveringLogo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   
   const {btnSaveEnabled,setBtnSaveEnabled, resto, updateResto} = useResto();
 
+
+ 
+
   const items = [
-    { id: "home", label: "Home", icon: <LayoutGrid size={20} /> },
-    { id: "menu", label: "Gestión de Menú", icon: <Soup  size={20} /> },
-    { id: "visual", label: "Personalización Visual", icon: <PaintRoller size={20} /> },
-    { id: "cart", label: "Gestión de Carrito", icon: <ShoppingCart size={20} /> },
+    { id: "home", label: "Home", icon: <LayoutGrid size={20} /> ,admin_required: false },
+    { id: "menu", label: "Gestión de Menú", icon: <Soup  size={20} /> ,admin_required: false },
+    { id: "visual", label: "Personalización Visual", icon: <PaintRoller size={20} /> ,admin_required: true },
+    { id: "cart", label: "Gestión de Carrito", icon: <ShoppingCart size={20} /> ,admin_required: true },
     // { id: "payments", label: "Suscripción y Pagos", icon: <DollarSign size={20} /> },
     // { id: "stats", label: "Estadísticas", icon: <BarChart3 size={20} /> },
-    { id: "config", label: "Configuracion", icon: <Bolt  size={20} /> },
+    { id: "staff", label: "Mi Staff", icon: <Users  size={20} /> ,admin_required: true },
+    { id: "config", label: "Configuracion", icon: <Bolt  size={20} /> ,admin_required: true },
   ];
+
 
   const { logout } = useAuth();
 
@@ -139,52 +146,61 @@ export default function DashboardNav({ active, onChange }:any) {
               </div>
             )}
             {/* Overlay con icono de edición */}
-            {isHoveringLogo && (
+            {user?.role === "admin" && isHoveringLogo && (
               <div className="absolute inset-0 bg-black/50 rounded flex items-center justify-center">
                 <Edit className="text-white" size={24} />
               </div>
             )}
             {/* Input file oculto */}
+            {user?.role === "admin" && (
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={handleLogoUpload}
-              className="hidden"
-            />
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
+            )}
           </div>
         </div>
 
         <nav className="px-4 space-y-2 flex-1 overflow-y-auto">
-          {items.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                if(btnSaveEnabled){
-                  const res = confirm("Tienes cambios sin guardar, estas seguro de salir de esta seccion?Tus cambios se perderán");
-                  if(res){
-                    setBtnSaveEnabled(false);
-                    onChange(item.id);
-                    setOpen(false);
-                  }
-                }
-                else{
-                  onChange(item.id);
-                  setOpen(false);
-                }
-              }}
-              className={`flex items-center justify-between w-full p-3 rounded-md 
-                text-sm font-medium transition 
-                ${active === item.id ? "bg-blue-100 text-blue-600" : "text-gray-700 hover:bg-gray-100"}`}
-            >
-              {item.label}
-              {item.icon}
-            </button>
-          ))}
+          {items.map((item) => {
+            if(item.admin_required && user?.role !== "admin") return null;
+            else{
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    if(btnSaveEnabled){
+                      const res = confirm("Tienes cambios sin guardar, estas seguro de salir de esta seccion?Tus cambios se perderán");
+                      if(res){
+                        setBtnSaveEnabled(false);
+                        onChange(item.id);
+                        setOpen(false);
+                      }
+                    }
+                    else{
+                      onChange(item.id);
+                      setOpen(false);
+                    }
+                  }}
+                  className={`flex items-center justify-between w-full p-3 rounded-md 
+                    text-sm font-medium transition 
+                    ${active === item.id ? "bg-blue-100 text-blue-600" : "text-gray-700 hover:bg-gray-100"}`}
+                >
+                  {item.label}
+                  {item.icon}
+                </button>)
+            }
+          })}
           <button
             onClick={() => {
-              logout();
-              setOpen(false);
+              const res = confirm("Estas seguro de cerrar sesión?");
+              if(res){
+                logout();
+                setOpen(false);
+              }
             }}
             className="flex items-center justify-between w-full p-3 mt-full rounded-md text-sm font-medium transition text-gray-700 hover:bg-gray-100"
           >

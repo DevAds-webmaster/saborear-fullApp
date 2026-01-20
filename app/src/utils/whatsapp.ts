@@ -14,6 +14,8 @@ export const buildWhatsAppMessage = (cart: Cart): string => {
     })
     .join("\n");
   const totalText = `${formatCurrency(cart.totals.total, currency)}`;
+  const subtotalText = `${formatCurrency(cart.totals.subtotal, currency)}`;
+  const deliveryFeeText = `${formatCurrency(cart.totals.deliveryFee, currency)}`;
 
   // Si hay plantilla configurada en el Resto, úsala con reemplazo de TAGS
   const template = cart.meta?.cartTemplate?.trim();
@@ -21,6 +23,8 @@ export const buildWhatsAppMessage = (cart: Cart): string => {
     const replacements: Record<string, string> = {
       restoName: cart.meta?.restoName ?? "mi restaurante",
       items: itemsText,
+      subTotal: cart.meta?.orderType === "delivery" ? subtotalText : "-",
+      deliveryFee: cart.meta?.orderType === "delivery" ? deliveryFeeText : "-",
       total: totalText,
       customerName: cart.meta?.customerName ?? "",
       table: cart.meta?.table ?? "",
@@ -32,7 +36,11 @@ export const buildWhatsAppMessage = (cart: Cart): string => {
   }
 
   // Fallback: mensaje por defecto
-  const totals = `\nTotal: ${totalText}`;
+  const totalData =
+  `${cart.totals.subtotal && cart.meta?.orderType === "delivery" ? `\nSubtotal: ${subtotalText}` : ""
+  }${cart.totals.deliveryFee && cart.meta?.orderType === "delivery" ? `\nPrecio Delivery: ${deliveryFeeText}` : ""
+  }${cart.totals.total? `\nTotal: ${totalText}` : ""}`.trimEnd();
+
   const hasCustomerData =
     !!cart.meta?.customerName || !!cart.meta?.table || !!cart.meta?.orderType || !!cart.meta?.address || !!cart.meta?.phone;
 
@@ -47,7 +55,7 @@ export const buildWhatsAppMessage = (cart: Cart): string => {
     : "";
 
   const headerAndItems = [header, itemsText].filter(Boolean).join("\n");
-  return [headerAndItems, totals, customer].filter(Boolean).join("\n");
+  return [headerAndItems, totalData, customer].filter(Boolean).join("\n");
 };
 
 export const buildWhatsAppLink = (phoneE164: string, message: string) => {

@@ -8,6 +8,7 @@ import React, {
 
   import { type User,type AuthContextType } from "../types/index";
   import { authService } from "../services/auth.ts";
+  import { useResto } from '../contexts/RestoContext';
   
   // El contexto acepta AuthContextType o undefined
   const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,7 +30,7 @@ import React, {
   export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-  
+    const { setId } = useResto();
     useEffect(() => {
       const token = localStorage.getItem("authToken");
       if (token) {
@@ -53,10 +54,14 @@ import React, {
         if (result) {
           setUser(result.user);
           localStorage.setItem("authToken", result.token);
-          return true;
+          if(result.user.role === "admin"){
+            setId(result.user.restos[0] as string);
+          }else if(result.user.role === "staff"){
+            setId(result.user.resto as string);
+          }
         }
-        return false;
-      } catch (error) {
+        return true;
+      }catch (error) {
         console.error("Login failed:", error);
         return false;
       } finally {
@@ -67,6 +72,8 @@ import React, {
     const logout = (): void => {
       setUser(null);
       localStorage.removeItem("authToken");
+      localStorage.clear();
+      setId('');
     };
   
     return (

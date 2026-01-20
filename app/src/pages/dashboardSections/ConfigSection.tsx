@@ -190,7 +190,7 @@ export default function ConfigSection() {
         </section>
 
         {/* Toggles y delay */}
-        <section className="border rounded-lg p-4 md:col-span-2">
+        <section className="border rounded-lg p-4 md:col-span-2 hidden">
           <h2 className="font-semibold mb-2">Parámetros de Modales</h2>
           <div className="flex flex-wrap items-center gap-6">
             <label className="flex items-center gap-2 text-sm">

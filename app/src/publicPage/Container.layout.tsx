@@ -138,7 +138,6 @@ export default function Container ({mode, cart=false,children}:any) {
         const emptied = clearCart(cartState);
         saveCart(slug, emptied);
         try { window.dispatchEvent(new Event('cart:updated')); } catch {}
-        
         window.open(url, "_blank");
       }
     };

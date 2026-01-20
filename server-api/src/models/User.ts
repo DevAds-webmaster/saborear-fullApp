@@ -1,25 +1,33 @@
-import mongoose, { model, Schema ,Types  } from "mongoose";
+import mongoose, { model, Schema, Types } from "mongoose";
 
-export interface IUser {
+export type UserRole = "admin" | "staff";
+
+interface IUser {
     username: string;
+    role: UserRole;
     email: string;
     hash: string;
     session: string;
-    restos: Types.ObjectId[];
-    mp_subscription_id?: string | null;
-    subscription_status?: string;
-    next_payment_date?: Date | null;
+    restos: Types.ObjectId[];  
+    resto: Types.ObjectId;
+    my_staff: Types.ObjectId[]; 
 }
+
 
 const userSchema = new Schema<IUser>({
     username: { type: String, required: true },
+    role: { type: String, enum: ["admin", "staff"], required: true },
+
     email: { type: String, required: true },
     hash: { type: String, required: true },
     session: { type: String },
+    // Para admin
     restos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Resto" }],
-    mp_subscription_id: { type: String, default: null },
-    subscription_status: { type: String, default: "inactive" },
-    next_payment_date: { type: Date, default: null }
+    // Para staff (un solo Resto)
+    resto: { type: mongoose.Schema.Types.ObjectId, ref: "Resto" },
+    // Para admin: lista de IDs de usuarios staff
+    my_staff: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", default: [] }],
+
 });
 
 export default model<IUser>("User", userSchema);

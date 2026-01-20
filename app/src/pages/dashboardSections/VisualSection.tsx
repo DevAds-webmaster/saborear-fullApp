@@ -27,7 +27,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
         setOptionsLoading(true);
         setOptionsError(null);
         const res = await getStylesOptions();
-        console.log('res',res)
+        //console.log('res',res)
         setOptions(res || null);
       } catch (e) {
         setOptionsError('No se pudieron cargar las opciones de estilos');
@@ -79,8 +79,8 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
 
 
   useEffect(()=>{
-    console.log('localStyle',localStyle)
-    console.log('restoPreview',restoPreview)
+   // console.log('localStyle',localStyle)
+   // console.log('restoPreview',restoPreview)
   },[restoPreview])
 
   if (!resto) {
@@ -146,6 +146,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
     "principalSection.title": "principalSectionStyles.title",
     "principalSection.descriptionText": "principalSectionStyles.descriptionText",
     "principalSection.itemsText": "principalSectionStyles.itemsText",
+    "principalSection.tagsTextColor": "principalSectionStyles.tagsTextColor",
     "modalsItems.container": "modalsItemsStyles.container",
     "modalsItems.textColor": "modalsItemsStyles.textColor",
     "displayDePaso.container": "displayDePasoStyles.container",
@@ -354,7 +355,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
             </div>
 
             {/* Footer redes */}
-            <div className="border rounded-lg p-4">
+            <div className="border rounded-lg p-4 hidden">
               <h3 className="font-medium mb-2">Footer</h3>
               <div className="space-y-3">
                 {/* Facebook */}
@@ -492,6 +493,19 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
                 ))}
               </select>
             </div>
+            <div>
+              <label className="block text-sm">Texto Tags</label>
+              <select
+                className="mt-1 w-full p-2 border rounded"
+                value={getNested(localStyle, 'principalSectionStyles.tagsTextColor') || ''}
+                onChange={(e) => handleSelectChange('principalSectionStyles.tagsTextColor', e.target.value)}
+              >
+                <option value="">-- seleccionar --</option>
+                {options?.['principalSection.tagsTextColor']?.map((o) => (
+                  <option key={o.id} value={o.value}>{o.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </section>
 
@@ -608,7 +622,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
         </section>
 
         {/* Display de paso */}
-        <section>
+        <section className="hidden">
           <h2 className="text-lg font-semibold">Display De Paso</h2>
           <p className="text-sm text-gray-500">Estilos del display de paso (pantalla externa).</p>
           <div className="mt-2 grid grid-cols-2 gap-3">
@@ -629,7 +643,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
         </section>
 
         {/* Display Comercial */}
-        <section>
+        <section className="hidden">
           <h2 className="text-lg font-semibold">Display Comercial</h2>
           <p className="text-sm text-gray-500">Selecciona una plantilla comercial para los displays.</p>
           <div className="mt-2 w-64">

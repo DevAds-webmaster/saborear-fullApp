@@ -13,11 +13,12 @@ import CartSection from "./dashboardSections/CartSection.tsx";
 import ConfigSection from "./dashboardSections/ConfigSection.tsx";
 import PaymentsSection from "./dashboardSections/PaymentsSection";
 import StatsSection from "./dashboardSections/StatsSection";
+import StaffSection from "./dashboardSections/StaffSection";
 import { useAuth } from '../contexts/AuthContext';
 import { useResto } from '../contexts/RestoContext';
 
 function Dashboard (){
-    const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'cart'| 'payments'| 'stats' | 'config'> ('home');
+    const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'cart'| 'payments'| 'stats' | 'config' | 'staff'> ('home');
     const { user, isLoading } = useAuth();
     const {resto ,updateResto ,id, setId,getResto, btnSaveEnabled} = useResto();
     const [searchParams] = useSearchParams();
@@ -25,7 +26,7 @@ function Dashboard (){
 
     useEffect(()=>{
       const viewParam = searchParams.get('view');
-      const allowed = ['home','menu','visual','cart','payments','stats','config'] as const;
+      const allowed = ['home','menu','visual','cart','payments','stats' ,'config' ,'staff'] as const;
       type View = typeof allowed[number];
       const isView = (v: string): v is View => (allowed as readonly string[]).includes(v);
 
@@ -38,11 +39,13 @@ function Dashboard (){
 
     useEffect(()=>{
       if(user){
-        console.log("Log - user",user);
-        console.log('useEffect1')
-        if(user?.restos.length){
-          console.log('useEffect2')
+       // console.log("Log - user",user);
+       // console.log('useEffect1')
+        if(user?.restos?.length){
+       //   console.log('useEffect2')
           setId(user?.restos[0]);
+        }else if(user?.resto){
+          setId(user?.resto as string);
         }
       }
     },[user])
@@ -81,6 +84,8 @@ function Dashboard (){
             return <StatsSection />;
           case "config":
             return <ConfigSection />;
+          case "staff":
+            return <StaffSection />;
           default:
             return <HomeSection />;
         }

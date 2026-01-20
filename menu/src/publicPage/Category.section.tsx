@@ -34,10 +34,9 @@ export function CategorySection({categoryName,categoryObject,sizeClass,resto, ca
     const [modalData, setModalData] = useState<any>(null);
  
     const SectionCategoryMP = () => {
-        console.log("style",style);
         return (
-            <div className={sizeClass+" "}>
-                <section key={category} className={" justify-self-center p-4 "+(style?.categorySectionStyles.container)+" "+(option?.optionsConfig.enableMultiPage && " mt-5  md:mx-4 ")}>
+            <div className={sizeClass+" md:mx-4"}>
+                <section key={category} className={" justify-self-center p-4 "+(style?.categorySectionStyles.container)+" "+(option?.optionsConfig.enableMultiPage && " mt-5  w-full")}>
                     <h2 className={"mb-4 text-center "+(style?.categorySectionStyles.title)}>{categoryObject.name}</h2>
                     
                         
@@ -162,8 +161,8 @@ export function CategorySection({categoryName,categoryObject,sizeClass,resto, ca
 
     const SectionCategorySP = () => {
         return (
-            <div className={sizeClass+" "}>
-                <section className={" "+(style?.categorySectionStyles.container)+"  justify-self-center p-4 md:mx-4 "}>
+            <div className={sizeClass+" p-4 md:mx-4"}>
+                <section className={" "+(style?.categorySectionStyles.container)+"  justify-self-center  p-4 w-full"}>
                     <h2 className={"mb-4 text-center "+(style?.categorySectionStyles.title)}>{categoryName}</h2>
             
                     <div key={categoryName} className={" mx-10 "+style?.categorySectionStyles.descriptionText+" "+ style?.categorySectionStyles.descriptionBorder} >

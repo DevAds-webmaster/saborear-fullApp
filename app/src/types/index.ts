@@ -6,13 +6,21 @@ export interface ChatMessage {
   created_at: string;
 }
 
-
+export interface StaffUser {
+  id: string;
+  username: string;
+  role: string;
+  resto: string;
+}
 
 export interface User {
   id: string;
   username: string;
   email: string;
   restos: string[];
+  role: string;
+  my_staff: string[];
+  resto: string;
   // lo que necesites
 }
 
@@ -84,6 +92,7 @@ export interface Resto {
 
 export interface CartSettings {
   template: string;
+  deliveryFee: number;
 }
 
 export interface Style {

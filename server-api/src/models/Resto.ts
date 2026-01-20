@@ -44,13 +44,13 @@ export const restoSchema = new Schema<IResto>({
   address: { type: String },
   cart_settings: cartSettingsSchema,
   params: [parametersSchema],
-  menu: menuSchema,
-  config: configSchema,
-  style: styleSchema,
+  menu: {type: menuSchema, required: true},
+  config: {type: configSchema, required: true},
+  style: {type: styleSchema, required: true},
   createdAt: { type: Date, default: Date.now },
 
   mp_subscription_id: { type: String, default: null },
-  subscription_status: { type: String, default: "inactive" },
+  subscription_status: { type: String, default: "active" },
   next_payment_date: { type: Date, default: null }
 });
 
