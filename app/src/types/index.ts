@@ -73,6 +73,13 @@ export interface ThemeOptions {
 }
 
 // Resto types
+export interface PrintSetup {
+  showImages: boolean;
+  description: string;
+  headerPage: string;
+  footerPage: string;
+}
+
 export interface Resto {
   _id: string;
   name: string;
@@ -85,6 +92,7 @@ export interface Resto {
   style: Style;
   createdAt: string;
   cart_settings: CartSettings;
+  print_setup?: PrintSetup;
   mp_subscription_id?: string | null;
   subscription_status?: string;
   next_payment_date?: string | null;
@@ -93,6 +101,7 @@ export interface Resto {
 export interface CartSettings {
   template: string;
   deliveryFee: number;
+  orderTypes: Array<{ type: "delivery" | "local" | "retiro"; enabled: boolean }>;
 }
 
 export interface Style {

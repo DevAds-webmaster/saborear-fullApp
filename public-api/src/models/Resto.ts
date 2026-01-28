@@ -12,6 +12,23 @@ import { styleSchema } from "./Style.js";
 
 
 
+export interface IPrintSetup {
+  showImages: boolean;
+  description: string;
+  headerPage: string;
+  footerPage: string;
+}
+
+export const printSetupSchema = new Schema<IPrintSetup>(
+  {
+    showImages: { type: Boolean, default: true },
+    description: { type: String, default: "" },
+    headerPage: { type: String, default: "" },
+    footerPage: { type: String, default: "" },
+  },
+  { _id: false },
+);
+
 export interface IResto extends Document {
   name: string;
   slug: string;
@@ -22,6 +39,7 @@ export interface IResto extends Document {
   menu: IMenu;
   config: IConfig;
   style: IStyle;
+  print_setup?: IPrintSetup;
   createdAt: Date;
 
   mp_subscription_id?: string | null;
@@ -47,6 +65,7 @@ export const restoSchema = new Schema<IResto>({
   menu: menuSchema,
   config: configSchema,
   style: styleSchema,
+  print_setup: { type: printSetupSchema, default: () => ({}) },
   createdAt: { type: Date, default: Date.now },
 
   mp_subscription_id: { type: String, default: null },
