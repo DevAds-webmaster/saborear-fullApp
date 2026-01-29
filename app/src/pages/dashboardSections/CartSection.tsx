@@ -1,30 +1,57 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useResto } from "../../contexts/RestoContext";
 import type { Resto } from "../../types";
 import { DollarSignIcon, Phone } from "lucide-react";
+import { DashboardSaveButtons } from "../../components/DashboardSaveButtons";
 
 export default function CartSection() {
   const { resto, updateResto, btnSaveEnabled, setBtnSaveEnabled, restoPreview, setRestoPreview } = useResto();
   const [localPhone, setLocalPhone] = useState<string>(resto?.phone || "");
   const [localDeliveryFee, setLocalDeliveryFee] = useState<number>(resto?.cart_settings?.deliveryFee || 0);
   const [localCartTemplate, setLocalCartTemplate] = useState<string>(resto?.cart_settings?.template || "");
+  const defaultOrderTypes = useMemo(
+    () => [
+      { type: "delivery" as const, enabled: true },
+      { type: "local" as const, enabled: true },
+      { type: "retiro" as const, enabled: true },
+    ],
+    []
+  );
+  const [localOrderTypes, setLocalOrderTypes] = useState<Array<{ type: "delivery" | "local" | "retiro"; enabled: boolean }>>(
+    resto?.cart_settings?.orderTypes?.length ? resto.cart_settings.orderTypes : defaultOrderTypes
+  );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     setLocalPhone(resto?.phone || "");
     setLocalCartTemplate(resto?.cart_settings?.template || "");
     setLocalDeliveryFee(resto?.cart_settings?.deliveryFee || 0);
+    setLocalOrderTypes(resto?.cart_settings?.orderTypes?.length ? resto.cart_settings.orderTypes : defaultOrderTypes);
   }, [resto]);
 
   useEffect(() => {
     if (!resto) return;
     // Mantener un preview consistente
-    setRestoPreview({ ...(restoPreview || resto), phone: localPhone, cart_settings: { template: localCartTemplate, deliveryFee: localDeliveryFee } } as Resto);
+    setRestoPreview({
+      ...(restoPreview || resto),
+      phone: localPhone,
+      cart_settings: { template: localCartTemplate, deliveryFee: localDeliveryFee, orderTypes: localOrderTypes },
+    } as Resto);
     // Habilitar guardar si hay cambios
-    const base = JSON.stringify({ phone: resto.phone || "", cart_settings: { template: resto.cart_settings?.template || "", deliveryFee: resto.cart_settings?.deliveryFee || 0 } });
-    const next = JSON.stringify({ phone: localPhone || "", cart_settings: { template: localCartTemplate || "", deliveryFee: localDeliveryFee } });
+    const base = JSON.stringify({
+      phone: resto.phone || "",
+      cart_settings: {
+        template: resto.cart_settings?.template || "",
+        deliveryFee: resto.cart_settings?.deliveryFee || 0,
+        orderTypes: resto.cart_settings?.orderTypes || defaultOrderTypes,
+      },
+    });
+    const next = JSON.stringify({
+      phone: localPhone || "",
+      cart_settings: { template: localCartTemplate || "", deliveryFee: localDeliveryFee, orderTypes: localOrderTypes },
+    });
     setBtnSaveEnabled(base !== next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localPhone, localCartTemplate, localDeliveryFee]);
+  }, [localPhone, localCartTemplate, localDeliveryFee, localOrderTypes]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -36,13 +63,26 @@ export default function CartSection() {
     if (!resto) return;
     const ok = confirm("¿Guardar los cambios?");
     if (!ok) return;
-    const updated = await updateResto(resto._id, { phone: localPhone, cart_settings: { template: localCartTemplate, deliveryFee: localDeliveryFee } } as Partial<Resto>);
+    const updated = await updateResto(resto._id, {
+      phone: localPhone,
+      cart_settings: { template: localCartTemplate, deliveryFee: localDeliveryFee, orderTypes: localOrderTypes },
+    } as Partial<Resto>);
     if (updated) {
       alert("Cambios guardados correctamente ✅");
       setBtnSaveEnabled(false);
     } else {
       alert("Error al guardar los cambios ❌");
     }
+  };
+
+  const handleReset = () => {
+    if (!resto) return;
+    const res = confirm("Se reestablecerán los valores al último estado guardado.");
+    if (!res) return;
+    setLocalPhone(resto.phone || "");
+    setLocalCartTemplate(resto.cart_settings?.template || "");
+    setLocalDeliveryFee(resto.cart_settings?.deliveryFee || 0);
+    setLocalOrderTypes(resto.cart_settings?.orderTypes?.length ? resto.cart_settings.orderTypes : defaultOrderTypes);
   };
 
   const buildWhatsAppMessageExample = (template: string) => {
@@ -60,7 +100,10 @@ export default function CartSection() {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Carrito y WhatsApp</h1>
-
+      <p className="text-gray-600 mb-4">Edita el carrito de whatsapp para poder recibir pedidos de manera mas facil y precisa.</p>
+      <div className="my-6 flex">
+        <DashboardSaveButtons enabled={btnSaveEnabled} onReset={handleReset} onSave={handleSave} />
+      </div>
       <section className="border rounded-lg p-4 w-full">
         <h2 className="font-semibold mb-2">Número de WhatsApp del Resto</h2>
         <label className="text-sm text-gray-600 mb-1 inline-block">Teléfono (formato internacional preferido)</label>
@@ -90,6 +133,30 @@ export default function CartSection() {
             onChange={(e) => setLocalDeliveryFee(Number(e.target.value))}
             className="border rounded px-3 py-2 w-20"
           />
+        </div>
+        <br />
+        <h2 className="font-semibold mb-2">Tipos de pedido habilitados</h2>
+        <div className="flex flex-col gap-2">
+          {["delivery", "local", "retiro"].map((t) => {
+            const enabled = localOrderTypes.find((o) => o.type === t)?.enabled ?? true;
+            return (
+              <label key={t} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={enabled}
+                  onChange={(e) => {
+                    const exists = localOrderTypes.find((o) => o.type === t);
+                    if (exists) {
+                      setLocalOrderTypes(localOrderTypes.map((o) => (o.type === t ? { ...o, enabled: e.target.checked } : o)));
+                    } else {
+                      setLocalOrderTypes([...localOrderTypes, { type: t as any, enabled: e.target.checked }]);
+                    }
+                  }}
+                />
+                {t === "local" ? "Consumir en el local" : t === "retiro" ? "Retiro en el local" : "Delivery"}
+              </label>
+            );
+          })}
         </div>
         <br />
         <h2 className="font-semibold mb-2">Plantilla del Carrito</h2>
@@ -145,16 +212,6 @@ Tel: {phone}`}
           <li><strong>{'{subTotal}'}</strong> es el subtotal del pedido.</li>
           <li><strong>{'{deliveryFee}'}</strong> es el precio delivery del pedido.</li>
         </ul>
-
-        <div className="mt-4">
-          <button
-            onClick={handleSave}
-            disabled={!btnSaveEnabled}
-            className={`px-4 py-2 rounded ${btnSaveEnabled ? "bg-green-600 text-white" : "bg-gray-300 text-gray-600"}`}
-          >
-            Guardar
-          </button>
-        </div>
       </section>
     </div>
   );

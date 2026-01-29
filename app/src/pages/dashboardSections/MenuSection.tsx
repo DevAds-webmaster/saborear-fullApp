@@ -248,10 +248,9 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Gestión de Menú</h1>
-
-      {/* Carga general de imágenes removida: ahora por cada plato */}
-
+      <p className="text-gray-600 mb-4">Edita el menú y observa la vista previa en tiempo real.</p>
       
+      {/* Carga general de imágenes removida: ahora por cada plato */}
       <div className="my-6 flex">
         <button
           onClick={() => openModal("category")}

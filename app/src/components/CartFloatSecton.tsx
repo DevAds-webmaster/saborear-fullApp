@@ -13,6 +13,14 @@ interface CartFloatSectonProps {
 export const CartFloatSecton: React.FC<CartFloatSectonProps> = ({ open, onClose, resto, handleSend }) => {
   const slug = resto?.slug || "";
   const deliveryFee = resto?.cart_settings?.deliveryFee || 0;
+  const allowedTypes: Array<"local" | "retiro" | "delivery"> = useMemo(() => {
+    const list = resto?.cart_settings?.orderTypes || [
+      { type: "delivery", enabled: true },
+      { type: "local", enabled: true },
+      { type: "retiro", enabled: true },
+    ];
+    return list.filter((o) => o.enabled).map((o) => o.type) as any;
+  }, [resto?.cart_settings?.orderTypes]);
   const currency = "ARS";
   const [cart, setCart] = useState<Cart>(() => loadCart(slug));
   const [customerName, setCustomerName] = useState<string>("");
@@ -27,9 +35,10 @@ export const CartFloatSecton: React.FC<CartFloatSectonProps> = ({ open, onClose,
 
   useEffect(() => {
     setCustomerName(cart.meta?.customerName || "");
-    setOrderType(cart.meta?.orderType);
+    const incoming = cart.meta?.orderType;
+    setOrderType(incoming && allowedTypes.includes(incoming) ? incoming : undefined);
     setAddress(cart.meta?.address || "");
-  }, [cart]);
+  }, [cart, allowedTypes]);
 
   useEffect(() => {
     if (orderType === "delivery" && deliveryFee > 0) {
@@ -175,13 +184,13 @@ export const CartFloatSecton: React.FC<CartFloatSectonProps> = ({ open, onClose,
               className="w-full border rounded px-3 py-2"
             >
               <option value="">Seleccionar...</option>
-              <option value="local">Consumir en el local</option>
-              <option value="retiro">Retiro en el local</option>
-              <option value="delivery">Delivery</option>
+              {allowedTypes.includes("local") && <option value="local">Consumir en el local</option>}
+              {allowedTypes.includes("retiro") && <option value="retiro">Retiro en el local</option>}
+              {allowedTypes.includes("delivery") && <option value="delivery">Delivery</option>}
             </select>
           </div>
 
-          {orderType === "delivery" && (
+          {orderType === "delivery" && allowedTypes.includes("delivery") && (
             <div>
               <label className="block text-sm text-gray-600 mb-1">Dirección</label>
               <input
@@ -200,7 +209,7 @@ export const CartFloatSecton: React.FC<CartFloatSectonProps> = ({ open, onClose,
 
         <div className="p-4 border-t">
           <div className="flex items-center justify-between mb-3">
-            {orderType === "delivery" &&  deliveryFee > 0 && (
+            {orderType === "delivery" && allowedTypes.includes("delivery") &&  deliveryFee > 0 && (
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <span className="text-gray-600">Precio Delivery</span>
