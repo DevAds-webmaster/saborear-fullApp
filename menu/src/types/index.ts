@@ -18,6 +18,7 @@ export interface Resto {
 export interface CartSettings {
   template: string;
   deliveryFee: number;
+  orderTypes: Array<{ type: "delivery" | "local" | "retiro"; enabled: boolean }>;
 }
 
 export interface Style {
