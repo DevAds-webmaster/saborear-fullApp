@@ -32,6 +32,78 @@ export const QRSection = ({cart}:{cart:boolean}) =>{
         }
     };
 
+    const handleDownloadPng = async () => {
+        try {
+            const root = componenteRef.current;
+            if (!root) throw new Error("No hay componente para exportar");
+
+            const qrCanvas = root.querySelector("canvas") as HTMLCanvasElement | null;
+            if (!qrCanvas) throw new Error("No se encontró el canvas del QR");
+
+            // Exportamos el render del QR (y opcionalmente el logo) a un PNG
+            const OUTPUT_SIZE = 1080;
+            const size = OUTPUT_SIZE;
+            const out = document.createElement("canvas");
+            out.width = size;
+            out.height = size;
+            const ctx = out.getContext("2d");
+            if (!ctx) throw new Error("No se pudo crear el contexto 2D");
+
+            // Fondo blanco (evita transparencias raras)
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, size, size);
+
+            // Pintamos el QR (canvas fuente)
+            ctx.drawImage(qrCanvas, 0, 0, size, size);
+
+            // Si está activo, compositamos el logo centrado como en el overlay
+            if (withLogo && logoUrl) {
+                const circleSize = size * 0.28; // igual que el overlay (28%)
+                const circleRadius = circleSize / 2;
+                const centerX = size / 2;
+                const centerY = size / 2;
+
+                // círculo blanco
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, circleRadius, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fillStyle = "#ffffff";
+                ctx.fill();
+                ctx.restore();
+
+                // logo dentro del círculo (80%)
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.src = logoUrl;
+                await img.decode();
+
+                const logoSize = circleSize * 0.8;
+                ctx.drawImage(
+                    img,
+                    centerX - logoSize / 2,
+                    centerY - logoSize / 2,
+                    logoSize,
+                    logoSize
+                );
+            }
+
+            const dataUrl = out.toDataURL("image/png");
+            const a = document.createElement("a");
+            a.href = dataUrl;
+            a.download = `qr-${resto?.slug ?? "menu"}.png`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+
+            setCopiedToast("PNG descargado");
+            setTimeout(() => setCopiedToast(null), 5000);
+        } catch (err) {
+            setCopiedToast("No se pudo generar el PNG");
+            setTimeout(() => setCopiedToast(null), 5000);
+        }
+    };
+
 
     const handlePrint = useReactToPrint({
         contentRef: printRef, // imprimimos el layout A4 del modal
@@ -123,15 +195,27 @@ export const QRSection = ({cart}:{cart:boolean}) =>{
                     </span>
                 </a>
             </div>
-            <div>
-                <button 
-                    type="button" 
-                    className=" bg-gray-400 hover:bg-gray-200 px-4 py-2"
-                    onClick={() => setPrintModalOpen(true)}
-                >
-                    🖨️ Imprimir QR
-                </button>
+            <div className="flex flex-row gap-2 justify-center">
+                <div>
+                    <button 
+                        type="button" 
+                        className=" bg-gray-400 hover:bg-gray-200 px-4 py-2"
+                        onClick={() => setPrintModalOpen(true)}
+                    >
+                        🖨️ Imprimir QR
+                    </button>
+                </div>
+                <div>
+                    <button
+                        type="button"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2"
+                        onClick={handleDownloadPng}
+                    >
+                        ⬇️ Descargar PNG
+                    </button>
+                </div>
             </div>
+            
         </div>
 
         {printModalOpen && (

@@ -3,6 +3,7 @@ import { TriangleAlert } from "lucide-react";
 import type { Resto, Config, SignedImage } from "../../types";
 import { useResto } from "../../contexts/RestoContext";
 import { getImageKitAuth, uploadToImageKit } from "../../services/media";
+import { DashboardSaveButtons } from "../../components/DashboardSaveButtons";
 
 export default function ConfigSection() {
   const { resto, restoPreview, setRestoPreview, updateResto, btnSaveEnabled, setBtnSaveEnabled } = useResto();
@@ -65,15 +66,8 @@ export default function ConfigSection() {
     <div className="p-4">
       <h1 className="text-xl font-bold mb-4">Configuración</h1>
 
-      <div className="my-4 flex gap-3">
-        <button onClick={handleReset} className="bg-yellow-400 px-4 py-2 rounded">Reestablecer</button>
-        <button
-          onClick={handleSave}
-          disabled={!btnSaveEnabled}
-          className={`px-4 py-2 rounded ${btnSaveEnabled ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'}`}
-        >
-          Guardar Cambios
-        </button>
+      <div className="my-6 flex">
+        <DashboardSaveButtons enabled={btnSaveEnabled} onReset={handleReset} onSave={handleSave} />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">

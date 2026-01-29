@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useResto } from "../../contexts/RestoContext";
 import type { Resto, StyleOptionsMap, Config, ThemeOptions } from "../../types/index";
+import { DashboardSaveButtons } from "../../components/DashboardSaveButtons";
 
 interface VisualSectionProps {
   resto: Resto | null;
@@ -129,7 +130,10 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
 
   const handleReset = () => {
     const res = confirm("Se reestablecerán los valores al último estado guardado.");
-    if (res) setLocalStyle(resto.style || {});
+    if (!res) return;
+    setLocalStyle(resto.style || {});
+    setLocalConfig(resto.config);
+    setSelectedThemeId("");
   };
 
   const keyMap: Record<string, string> = {
@@ -195,16 +199,8 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
         <div className="text-sm text-red-600 mb-2">{optionsError}</div>
       )}
 
-      <div className="my-6 flex gap-3">
-        <button onClick={() => setLocalStyle(resto.style)} className="bg-gray-300 px-4 py-2 rounded">Reiniciar</button>
-        <button onClick={handleReset} className="bg-yellow-400 px-4 py-2 rounded">Reestablecer</button>
-        <button
-          onClick={handleSave}
-          disabled={!btnSaveEnabled}
-          className={`px-4 py-2 rounded ${btnSaveEnabled ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-600'}`}
-        >
-          Guardar Cambios
-        </button>
+      <div className="my-6 flex">
+        <DashboardSaveButtons enabled={btnSaveEnabled} onReset={handleReset} onSave={handleSave} />
       </div>
 
       {/* Temas por defecto */}
