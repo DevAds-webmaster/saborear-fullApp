@@ -1,5 +1,3 @@
-import React from "react";
-
 type DashboardSaveButtonsProps = {
   enabled: boolean;
   onReset: () => void;
