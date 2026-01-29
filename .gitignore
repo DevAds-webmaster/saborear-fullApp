@@ -13,6 +13,8 @@ Thumbs.db
 # === Dependencias ===
 node_modules/
 **/node_modules/
+api/node_modules/
+app/node_modules/
 
 # === Documentos ===
 docs/
@@ -34,15 +36,24 @@ coverage/
 *.tsbuildinfo
 
 # === Entornos (.env) ===
-.env
-.env.local
-!.env.example
-backend/.env
-backend/.env.*
-!backend/.env.example
-frontend/.env
-frontend/.env.*
-!frontend/.env.example
+
+!menu/.env.example
+!app/.env.example
+!server-api/.env.example
+!public-api/.env.example
+menu/.env
+menu/.env.local
+menu/.env.production
+app/.env
+app/.env.local
+app/.env.production
+server-api/.env
+server-api/.env.local
+server-api/.env.production
+public-api/.env
+public-api/.env.local
+public-api/.env.production
+
 
 # === Editores ===
 .vscode/
