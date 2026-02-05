@@ -41,7 +41,7 @@ export const QRSection = ({cart}:{cart:boolean}) =>{
             if (!qrCanvas) throw new Error("No se encontró el canvas del QR");
 
             // Exportamos el render del QR (y opcionalmente el logo) a un PNG
-            const OUTPUT_SIZE = 1080;
+            const OUTPUT_SIZE = 2160;
             const size = OUTPUT_SIZE;
             const out = document.createElement("canvas");
             out.width = size;
