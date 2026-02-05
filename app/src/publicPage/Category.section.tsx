@@ -254,6 +254,11 @@ export function CategorySection({categoryName,categoryObject,sizeClass,resto, ca
                                           const btn = (e.currentTarget as HTMLButtonElement);
                                           btn.classList.add('shake-blink');
                                           setTimeout(() => btn.classList.remove('shake-blink'), 1000);
+                                          const btnCart = document.getElementById('btn-cart');
+                                          if (btnCart) {
+                                            btnCart.classList.add('shake-blink-cart');
+                                            setTimeout(() => btnCart.classList.remove('shake-blink-cart'), 1000);
+                                          }
                                         }}
                                       >
                                         <SquarePlus size={22} />
