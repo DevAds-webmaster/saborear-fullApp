@@ -33,7 +33,8 @@ export interface IConfig {
         enableItemModals: boolean; // Si se quiere que se muestren los modales de los diferentes platos
         delayCloseModal: number; // Tiempo en milisegundos para cerrar el modal de los platos
     };
-    slogan:string; 
+    slogan:string;
+    template: string;
     paramModalsEnable : boolean;
     paramModalsDelay : number;
     flgSolidBackground : boolean;
@@ -107,6 +108,7 @@ export const configSchema = new Schema<IConfig>({
         delayCloseModal: { type: Number } // Tiempo en milisegundos para cerrar el modal de los platos
     },
     slogan:{ type: String },
+    template: { type: String, required: true, default: "single-page" },
     paramModalsEnable : { type: Boolean },
     paramModalsDelay : { type: Number },
     flgSolidBackground : { type: Boolean },

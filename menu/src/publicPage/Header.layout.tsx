@@ -1,10 +1,11 @@
 import { useEffect,useState } from 'react'
-import { Link ,useParams,useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 // Importing styles
 import type { Config, Style } from '../types';
 import { getDishImageUrl } from '../services/media';
 import { useResto } from '../contexts/RestoContext';
+import { usePublic } from '../contexts/PublicContext';
 import { ArrowLeft } from 'lucide-react';
 
 
@@ -13,14 +14,9 @@ export function Header ( {mode}:{mode:string} ) {
     const [option, setOption] = useState<Config | undefined>();
     const [style, setStyle] = useState<Style | undefined>();
     
-    const { category } = useParams();
-    const pCaterogry = category;
-
     // Importing logo and slogan from dataConfig
     const [logoImage, setLogoImage] = useState<string | undefined>("");
     const [sloganText, setSloganText] = useState<string | undefined>("");
-
-    const navigate = useNavigate();
 
     const [buttonTop, setButtonTop] = useState(150); // Estado para la posición 'top' del botón
     const initialTop = 150; // Posición 'top' inicial deseada
@@ -64,6 +60,10 @@ export function Header ( {mode}:{mode:string} ) {
        };
     }, [option]);
 
+
+    const { selectedCategoryName, triggerMultiPageBack } = usePublic();
+    const isMultiPage = option?.template === "multi-page";
+    const showBackButton = isMultiPage && !!selectedCategoryName;
 
     return (
     <>
@@ -140,16 +140,17 @@ export function Header ( {mode}:{mode:string} ) {
                     
                 </div>
             </header>
-            {
-                (pCaterogry &&
-                (<button
-                onClick={() => navigate(-1)}
-                style={{zIndex: 20, top: `${buttonTop}px`}}
-                className="fixed  ml-5 bg-gray-800 bg-opacity-80 hover:bg-opacity-100 text-amber-50 font-bold px-4 py-2 rounded-full shadow-lg cursor-pointer"
+            {showBackButton && (
+                <button
+                type="button"
+                onClick={triggerMultiPageBack}
+                style={{ zIndex: 60, top: `${buttonTop}px`, padding: 20 }}
+                className="fixed left-4 ml-0 flex items-center justify-center rounded-full bg-white text-gray-900 cursor-pointer shadow-[0_4px_12px_rgba(0,0,0,0.22),0_10px_28px_rgba(0,0,0,0.38)] transition-[colors,box-shadow] duration-300 hover:bg-gray-300 hover:shadow-[0_6px_16px_rgba(0,0,0,0.28),0_14px_36px_rgba(0,0,0,0.45)] animate-float"
+                aria-label="Volver"
                 >
-                    <ArrowLeft className="w-4 h-4" />
-                </button>))
-            }
+                    <ArrowLeft className="w-5 h-5" />
+                </button>
+            )}
         </div>
     </>
     

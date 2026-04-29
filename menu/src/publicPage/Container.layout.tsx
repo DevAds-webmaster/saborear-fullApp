@@ -12,7 +12,7 @@ import { usePublic } from '../contexts/PublicContext.tsx';
 import { restoService } from "../services/resto";
 
 
-import { ParamModal } from './modal.component';
+import { ParamModal } from './components/modal.component';
 import type { Config ,Style, Resto} from '../types/index.ts';
 import { getDishImageUrl } from '../services/media';
 import { CartFloatSecton } from '../components/CartFloatSecton.tsx';
@@ -56,22 +56,27 @@ export default function Container ({mode, children}:any) {
         setStyle(resto?.style);
     },[resto]);
 
+    const currentResto: Resto | null = resto || null;
+
     useEffect(() => {
         const url = option?.srcImgBackground ? getDishImageUrl(option.srcImgBackground, 1600) : undefined;
         setBgImage(url);
-        const favicon = getDishImageUrl(option?.srcImgLogo, 16);
-        if(favicon){
-            document.querySelector('link[rel="icon"]')?.setAttribute('href', favicon);
+
+        const faviconUrl = option?.srcImgLogo ? getDishImageUrl(option.srcImgLogo, 48) : "";
+        const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+        if (link) {
+            link.href = faviconUrl || "";
         }
-    }, [option]);
+
+        const name = currentResto?.name?.trim();
+        document.title = name ? `${name} - Menu Digital` : "Menú Digital";
+    }, [option, setBgImage, currentResto?.name]);
 
     // Función para manejar el modal
     const handleModal = (data:any) => {
       if(option?.optionsConfig.enableParamModals)
             setModalData(data || null);
     };
-  
-    const currentResto: Resto | null = resto || null;
 
     const handleSend = () => {
       const r = currentResto;

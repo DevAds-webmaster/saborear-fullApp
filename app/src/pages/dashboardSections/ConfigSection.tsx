@@ -4,6 +4,7 @@ import type { Resto, Config, SignedImage } from "../../types";
 import { useResto } from "../../contexts/RestoContext";
 import { getImageKitAuth, uploadToImageKit } from "../../services/media";
 import { DashboardSaveButtons } from "../../components/DashboardSaveButtons";
+import { SectionTitleWithHelp } from "../../components/SectionTitleWithHelp";
 
 export default function ConfigSection() {
   const { resto, restoPreview, setRestoPreview, updateResto, btnSaveEnabled, setBtnSaveEnabled } = useResto();
@@ -64,7 +65,10 @@ export default function ConfigSection() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Configuración</h1>
+      <SectionTitleWithHelp
+        title="Configuración"
+        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+      />
 
       <div className="my-6 flex">
         <DashboardSaveButtons enabled={btnSaveEnabled} onReset={handleReset} onSave={handleSave} />
@@ -101,7 +105,7 @@ export default function ConfigSection() {
             onChange={(e) => {
               const next = e.target.value;
               if (!slugChangeConfirmed) {
-                const ok = confirm("Estás a punto de cambiar el SLUG. Esto modificará la URL pública y el QR. Si ya imprimiste QR, dejarán de funcionar. ¿Deseas continuar?");
+                const ok = confirm("Estás a punto de cambiar el SLUG. Esto modificará la URL pública y el QR. Si ya imprimiste códigos QR, dejarán de ser útiles. ¿Deseas continuar?");
                 if (!ok) return;
                 setSlugChangeConfirmed(true);
               }
@@ -207,6 +211,24 @@ export default function ConfigSection() {
               />
             </div>
           </div>
+        </section>
+
+        {/* Template LayOut */}
+        <section className="border rounded-lg p-4 md:col-span-2">
+          <h2 className="font-semibold mb-2">Plantilla del menú público</h2>
+          <p className="text-sm text-gray-600 mb-3">
+            Define cómo se navega el menú: todo en una sola página con scroll o una página por categoría.
+          </p>
+          <select
+            value={localConfig?.template ?? "single-page"}
+            onChange={(e) =>
+              setLocalConfig((prev) => ({ ...(prev as Config), template: e.target.value }))
+            }
+            className="w-full max-w-md border rounded px-3 py-2 bg-white"
+          >
+            <option value="single-page">Una sola página (single-page)</option>
+            <option value="multi-page">Multi página (multi-page)</option>
+          </select>
         </section>
       </div>
     </div>

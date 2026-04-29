@@ -40,6 +40,7 @@ export interface RestoContextType {
   setSlug: (slug: string) => void;
   slug: string| null;
   updateResto:(restoId: string, restoData: Partial<Resto>) => Promise<Resto | null>;
+  createResto:(restoData: Partial<Resto>, userId: string) => Promise<Resto | null>;
   getResto:() => void;
   id: string;
   setId: (id: string) => void;
@@ -59,6 +60,10 @@ export interface PublicContextType {
   bgImage: string| undefined;
   setBgImage: (bg: string | undefined) => void;
   getRestoWhatsAppLink?: (message: string) => string | null;
+  selectedCategoryName: string | null;
+  setSelectedCategoryName: (categoryName: string | null) => void;
+  setMultiPageBackHandler: (handler: (() => void) | null) => void;
+  triggerMultiPageBack: () => void;
 }
 
 export type StyleOptionsMap = Record<string, Array<{ id: string; label: string; value: string }>>;
@@ -201,7 +206,8 @@ export interface Config {
     enableItemModals: boolean; // Si se quiere que se muestren los modales de los diferentes platos
     delayCloseModal: number; // Tiempo en milisegundos para cerrar el modal de los platos
   };
-  slogan:string; 
+  slogan:string;
+  template: string;
   paramModalsEnable : boolean;
   paramModalsDelay : number;
   flgSolidBackground : boolean;

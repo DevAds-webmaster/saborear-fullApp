@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useResto } from "../../contexts/RestoContext";
 import type { Resto, StyleOptionsMap, Config, ThemeOptions } from "../../types/index";
 import { DashboardSaveButtons } from "../../components/DashboardSaveButtons";
+import { SectionTitleWithHelp } from "../../components/SectionTitleWithHelp";
 
 interface VisualSectionProps {
   resto: Resto | null;
@@ -87,7 +88,10 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
   if (!resto) {
     return (
       <div className="p-4 text-gray-600">
-        <h1 className="text-xl font-bold mb-4">Personalización Visual</h1>
+        <SectionTitleWithHelp
+          title="Personalización Visual"
+          videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+        />
         <p>No hay restaurante seleccionado.</p>
       </div>
     );
@@ -190,7 +194,10 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Personalización Visual</h1>
+      <SectionTitleWithHelp
+        title="Personalización Visual"
+        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+      />
       <p className="text-gray-600 mb-4">Edita las plantillas visuales y observa la vista previa en tiempo real.</p>
       {optionsLoading && (
         <div className="text-sm text-gray-500 mb-2">Cargando opciones…</div>

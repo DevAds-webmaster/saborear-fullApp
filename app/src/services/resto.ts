@@ -1,6 +1,32 @@
 import { type Resto } from '../types';
 
 export const restoService = {
+    async createResto(resto: Partial<Resto>, iduser: string): Promise<Resto | null> {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/resto/create`, {
+                method: 'POST',
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+                },
+                body: JSON.stringify({ resto, iduser }),
+            });
+
+            if (!response.ok) {
+                console.error('Error al crear el resto');
+                return null;
+            }
+
+            const data = await response.json();
+            return data?.resto || null;
+        } catch (error) {
+            console.error('Create resto error:', error);
+            return null;
+        }
+    },
+
     async getRestoById(restoId: string): Promise<Resto | null> {
         try {
             const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/resto/id/${restoId}`,{

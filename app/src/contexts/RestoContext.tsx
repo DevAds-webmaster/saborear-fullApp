@@ -62,8 +62,19 @@ export const useResto = (): RestoContextType => {
         return res;
     }
 
+    const createResto = async (restoData: Partial<Resto>, userId: string) => {
+        setIsLoading(true);
+        const res = await restoService.createResto(restoData, userId);
+        if (res) {
+            setResto(res);
+            setRestoPreview(res);
+        }
+        setIsLoading(false);
+        return res;
+    };
+
     return (
-        <RestoContext.Provider value={{ resto, setResto, isLoading, slug,setSlug, updateResto,getResto,id,setId,btnSaveEnabled, setBtnSaveEnabled,restoPreview,setRestoPreview, getStylesOptions, getThemeOptions }}>
+        <RestoContext.Provider value={{ resto, setResto, isLoading, slug,setSlug, updateResto, createResto, getResto,id,setId,btnSaveEnabled, setBtnSaveEnabled,restoPreview,setRestoPreview, getStylesOptions, getThemeOptions }}>
             {children}
         </RestoContext.Provider>
     );

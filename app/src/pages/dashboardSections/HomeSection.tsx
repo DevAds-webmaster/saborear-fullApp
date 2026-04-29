@@ -3,6 +3,7 @@ import { QRSection } from "../../components/QRSection";
 import { PrintMenuModal } from "../../components/PrintMenuModal.tsx";
 import { useResto } from "../../contexts/RestoContext";
 import { mpCheckAccess } from "../../services/mercadoPago";
+import { SectionTitleWithHelp } from "../../components/SectionTitleWithHelp";
 
 const HomeSection: React.FC = ()=> {
   const { id: restoId } = useResto();
@@ -24,7 +25,10 @@ const HomeSection: React.FC = ()=> {
 
   return (
     <div>
-      <h1 className="text-xl font-bold mb-4">Panel Principal</h1>
+      <SectionTitleWithHelp
+        title="Panel Principal"
+        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+      />
       <div className="grid grid-cols-3 gap-4 grid-rows-2">
         <div className="p-4 bg-white rounded shadow col-span-full md:col-span-2">
           <h2 className="font-semibold">Menú QR y enlace público (Sin Carrito WhatsApp)</h2>

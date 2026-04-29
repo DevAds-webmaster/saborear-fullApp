@@ -9,7 +9,7 @@ interface IUser {
     hash: string;
     session: string;
     restos: Types.ObjectId[];  
-    resto: Types.ObjectId;
+    resto?: Types.ObjectId;
     my_staff: Types.ObjectId[]; 
 }
 

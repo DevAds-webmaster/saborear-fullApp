@@ -4,6 +4,7 @@ import type { Resto, Menu, Category, Dish,MDC } from "../../types";
 import { useResto } from '../../contexts/RestoContext';
 import { getImageKitAuth, uploadToImageKit, getDishImageUrl } from "../../services/media";
 import { ObjectId } from 'bson';
+import { SectionTitleWithHelp } from "../../components/SectionTitleWithHelp";
 
 interface MenuSectionProps {
   resto: Resto | null;
@@ -26,7 +27,10 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
   if (!resto || !localMenu) {
     return (
       <div className="p-4 text-gray-600">
-        <h1 className="text-xl font-bold mb-4">Gestión de Menú</h1>
+        <SectionTitleWithHelp
+          title="Gestión de Menú"
+          videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+        />
         <p>No hay menú disponible para este restaurante.</p>
       </div>
     );
@@ -253,7 +257,10 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Gestión de Menú</h1>
+      <SectionTitleWithHelp
+        title="Gestión de Menú"
+        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+      />
       <p className="text-gray-600 mb-4">Edita el menú y observa la vista previa en tiempo real.</p>
       
       {/* Carga general de imágenes removida: ahora por cada plato */}

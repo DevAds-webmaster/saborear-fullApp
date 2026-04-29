@@ -13,7 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { restoService } from "../services/resto";
 
 
-import { ParamModal } from './modal.component';
+import { ParamModal } from './components/modal.component';
 import type { Config ,Style, Resto} from '../types/index.ts';
 import { getDishImageUrl } from '../services/media';
 import { CartFloatSecton } from '../components/CartFloatSecton.tsx';
@@ -102,21 +102,30 @@ export default function Container ({mode, cart=false,children}:any) {
             }
         };
         window.addEventListener('message', handler);
-        return () => window.removeEventListener('message', handler);
+        return () =>         window.removeEventListener('message', handler);
     }, [mode, setRestoPreview, setPublicResto]);
-    
+
+    const currentResto: Resto | null = mode === 'preview' ? (restoPreview || null) : (resto || null);
+
     useEffect(() => {
         const url = option?.srcImgBackground ? getDishImageUrl(option.srcImgBackground, 1600) : undefined;
         setBgImage(url);
-    }, [option]);
+
+        const faviconUrl = option?.srcImgLogo ? getDishImageUrl(option.srcImgLogo, 48) : "";
+        const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+        if (link) {
+            link.href = faviconUrl || "./assets/imgs/favicon_XL.png";
+        }
+
+        const name = currentResto?.name?.trim();
+        document.title = name ? `${name} - Menu Digital` : "Sabore.ar - Menus Digitales";
+    }, [option, setBgImage, currentResto?.name]);
 
     // Función para manejar el modal
     const handleModal = (data:any) => {
       if(option?.optionsConfig.enableParamModals)
             setModalData(data || null);
     };
-  
-    const currentResto: Resto | null = mode === 'preview' ? (restoPreview || null) : (resto || null);
 
     const handleSend = () => {
       const r = currentResto;

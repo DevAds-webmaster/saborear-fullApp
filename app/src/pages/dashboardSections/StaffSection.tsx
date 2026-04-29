@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { authService } from "../../services/auth";
 import type { StaffUser } from "../../types";
+import { SectionTitleWithHelp } from "../../components/SectionTitleWithHelp";
 
 export default function StaffSection() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -52,7 +53,10 @@ export default function StaffSection() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-xl font-bold mb-4">Usuarios del staff</h1>
+      <SectionTitleWithHelp
+        title="Usuarios del staff"
+        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+      />
 
       <div className="mb-4">
         <button

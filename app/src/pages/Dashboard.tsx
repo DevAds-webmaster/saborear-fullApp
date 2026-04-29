@@ -14,6 +14,7 @@ import ConfigSection from "./dashboardSections/ConfigSection.tsx";
 import PaymentsSection from "./dashboardSections/PaymentsSection";
 import StatsSection from "./dashboardSections/StatsSection";
 import StaffSection from "./dashboardSections/StaffSection";
+import OnBoarding from "./OnBoarding";
 import { useAuth } from '../contexts/AuthContext';
 import { useResto } from '../contexts/RestoContext';
 
@@ -51,7 +52,9 @@ function Dashboard (){
     },[user])
 
     useEffect(()=>{
-      getResto();
+      if (id) {
+        getResto();
+      }
     },[id])
 
     // Bloquear cierre/recarga/navegación si hay cambios sin guardar
@@ -105,6 +108,10 @@ function Dashboard (){
 
     if(!user)
         return <Login/>;
+
+    if (user.role === "admin" && (!user.restos || user.restos.length === 0)) {
+      return <OnBoarding />;
+    }
 
     return (
         <div className="flex h-screen bg-gray-50 overflow-hidden">

@@ -1,76 +1,28 @@
-import {CategorySection} from './Category.section';
-
-
-import type { Resto ,Category} from '../types';
-import { useEffect, useState } from 'react'
-//importing Options Config
-
+import { CategorySection } from "./Category.section";
+import type { Resto, Category } from "../types";
+import { useMemo } from "react";
+import { getVisibleSortedCategories } from "./utils/categories";
 
 interface CategoriesLayoutProps {
   resto: Resto | null;
   cart?: boolean;
 }
 
-
-
-
 export const CategoriesLayout: React.FC<CategoriesLayoutProps> = ({ resto, cart }) => {
-   const [menu, setMenu] = useState<Category[] | undefined>([]);
+  const categories: Category[] = useMemo(() => getVisibleSortedCategories(resto?.menu.categories), [resto]);
 
-   useEffect(()=>{
-      const getMenu=()=>{
-        const dishes = resto?.menu.categories;
-        setMenu(dishes);
-        console.log('dishes',dishes);
-      };
-      getMenu();
-   },[]);
-
-
-   return (
-    <div className="flex flex-wrap place-content-center py-4">
-      {
-        // Filtrar categorías que no son 'Menu Del Dia', no están vacías y están disponibles
-        menu
-          ?.filter((category: Category) => category.config.availableCat)
-          ?.sort((aObj, bObj) => {
-            const aOrder = Number(aObj.config.orderCat) || 0;
-            const bOrder = Number(bObj.config.orderCat) || 0;
-            return aOrder - bOrder;
-          })
-          ?.map((categoryObject, idx) => {
-            const categoryName = categoryObject.name; // ajusta si tu propiedad se llama distinto
-  
-            const isLastOne =
-              categoryObject.dishes.length % 3 === 1 &&
-              idx > categoryObject.dishes.length - 2;
-  
-            const isLastTwo =
-              categoryObject.dishes.length % 3 === 2 &&
-              idx > categoryObject.dishes.length - 3;
-  
-            const sizeClass = isLastOne
-              ? "w-full"
-              : isLastTwo
-              ? "md:w-1/2 w-full"
-              : "xl:w-1/3 md:w-1/2 w-full";
-  
-            if (categoryObject.dishes.length === 0) return null;
-            if (categoryObject.config.availableCat === false) return null;
-  
-            return (
-              <CategorySection
-                key={categoryName}
-                categoryName={categoryName}
-                categoryObject={categoryObject}
-                sizeClass={sizeClass}
-                resto={resto as unknown as Resto}
-                cart={cart}
-              />
-            );
-          })
-      }
+  return (
+    <div className="flex flex-col place-content-center py-4">
+      {categories.map((categoryObject) => (
+        <CategorySection
+          key={categoryObject.name}
+          categoryName={categoryObject.name}
+          categoryObject={categoryObject}
+          sizeClass="w-full"
+          resto={resto as Resto}
+          cart={cart}
+        />
+      ))}
     </div>
   );
-
-}
+};

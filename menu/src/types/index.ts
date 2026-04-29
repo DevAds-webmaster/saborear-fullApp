@@ -118,7 +118,8 @@ export interface Config {
     enableItemModals: boolean;
     delayCloseModal: number;
   };
-  slogan:string; 
+  slogan:string;
+  template: string;
   paramModalsEnable : boolean;
   paramModalsDelay : number;
   flgSolidBackground : boolean;
@@ -231,6 +232,10 @@ export interface PublicContextType {
   bgImage: string| undefined;
   setBgImage: (bg: string | undefined) => void;
   getRestoWhatsAppLink?: (message: string) => string | null;
+  selectedCategoryName: string | null;
+  setSelectedCategoryName: (categoryName: string | null) => void;
+  setMultiPageBackHandler: (handler: (() => void) | null) => void;
+  triggerMultiPageBack: () => void;
 }
 
 export interface RestoContextType {

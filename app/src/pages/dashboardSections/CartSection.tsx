@@ -3,6 +3,7 @@ import { useResto } from "../../contexts/RestoContext";
 import type { Resto } from "../../types";
 import { DollarSignIcon, Phone } from "lucide-react";
 import { DashboardSaveButtons } from "../../components/DashboardSaveButtons";
+import { SectionTitleWithHelp } from "../../components/SectionTitleWithHelp";
 
 export default function CartSection() {
   const { resto, updateResto, btnSaveEnabled, setBtnSaveEnabled, restoPreview, setRestoPreview } = useResto();
@@ -99,7 +100,10 @@ export default function CartSection() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Carrito y WhatsApp</h1>
+      <SectionTitleWithHelp
+        title="Carrito y WhatsApp"
+        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+      />
       <p className="text-gray-600 mb-4">Edita el carrito de whatsapp para poder recibir pedidos de manera mas facil y precisa.</p>
       <div className="my-6 flex">
         <DashboardSaveButtons enabled={btnSaveEnabled} onReset={handleReset} onSave={handleSave} />

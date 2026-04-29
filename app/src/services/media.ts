@@ -69,6 +69,14 @@ import type { SignedImage } from '../types';
 
 export function getDishImageUrl(image: SignedImage | undefined, width = 800) {
   if (!image?.secure_url) return '';
+  try {
+    const host = new URL(image.secure_url).hostname;
+    if (!host.endsWith('ik.imagekit.io')) {
+      return image.secure_url;
+    }
+  } catch {
+    return image.secure_url;
+  }
   return ikOptimizedUrlFromUrl(image.secure_url, width);
 }
 

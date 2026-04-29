@@ -1,6 +1,8 @@
 import React, {
     createContext,
+    useCallback,
     useContext,
+    useRef,
     useState,
     type ReactNode,
   } from "react";
@@ -13,7 +15,7 @@ const PublicContext = createContext<PublicContextType | undefined>(undefined);
 export const usePublic = (): PublicContextType => {
     const context = useContext(PublicContext);
     if (context === undefined) {
-        throw new Error("useAuth must be used within an RestoProvider");
+        throw new Error("usePublic must be used within an PublicProvider");
     }
     return context;
 };
@@ -28,6 +30,8 @@ export const usePublic = (): PublicContextType => {
     const [loading, setLoading] = useState<boolean>(true);
     const [slug, setSlug] = useState<string| null>('');
     const [bgImage, setBgImage] = useState<string | undefined>("");
+    const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
+    const multiPageBackHandlerRef = useRef<(() => void) | null>(null);
 
     const getRestoWhatsAppLink = (message: string): string | null => {
       if (!resto) return null;
@@ -37,6 +41,14 @@ export const usePublic = (): PublicContextType => {
         return null;
       }
     };
+
+    const setMultiPageBackHandler = useCallback((handler: (() => void) | null) => {
+      multiPageBackHandlerRef.current = handler;
+    }, []);
+
+    const triggerMultiPageBack = useCallback(() => {
+      multiPageBackHandlerRef.current?.();
+    }, []);
 
     return (
         <PublicContext.Provider 
@@ -48,7 +60,11 @@ export const usePublic = (): PublicContextType => {
                      slug,
                      bgImage,
                      setBgImage,
-                     getRestoWhatsAppLink}}
+                     getRestoWhatsAppLink,
+                     selectedCategoryName,
+                     setSelectedCategoryName,
+                     setMultiPageBackHandler,
+                     triggerMultiPageBack}}
         >
             {children}
         </PublicContext.Provider>

@@ -54,9 +54,12 @@ class macrosController {
     try {
       const macros = await Macros.findOne({ key: "themes" });
       if (!macros) {
-        return res.status(404).json({ error: "No se encontraron macros de themes" });
+        // 200 vacío: el cliente puede mostrar el onboarding sin tratar 404 como fallo de red
+        return res.json({ options: [] });
       }
-      res.json(macros?.data);
+      const data = macros.data;
+      const options = Array.isArray(data?.options) ? data.options : [];
+      res.json({ ...data, options });
     } catch (error) {
       res.status(500).json({ error: "Error al obtener macros de themes" });
     }

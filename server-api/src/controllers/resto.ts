@@ -20,26 +20,59 @@ class restoController {
         }
     
         try {
-        // Check if user exists
-        const user = await User.findById(iduser);
-        if (!user) return res.status(404).json({ message: "User not found" });
-    
-        // Crear nuevo Resto
-        const newResto = new Resto(resto);
-        const savedResto = await newResto.save();
-    
-        // Asociar el ID del Resto al usuario
-        // Asegurar tipo ObjectId al pushear
-        user.restos.push(savedResto._id as unknown as mongoose.Types.ObjectId);
-        await user.save();
-    
-        res.status(201).json({
-            message: "Resto creado correctamente",
-            resto: savedResto,
-        });
+            // Check if user exists
+            const user = await User.findById(iduser);
+            if (!user) return res.status(404).json({ message: "User not found" });
+
+            const slugNorm = typeof resto.slug === "string" ? resto.slug.trim().toLowerCase() : "";
+            if (slugNorm) {
+                const taken = await Resto.findOne({ slug: slugNorm }).lean();
+                if (taken) {
+                    return res.status(409).json({
+                        error: "Slug ya en uso",
+                        message: "Ya existe un restaurante con ese slug. Elegí otro.",
+                        code: "DUPLICATE_SLUG",
+                    });
+                }
+            }
+
+            // Crear nuevo Resto
+            const newResto = new Resto(resto);
+            const savedResto = await newResto.save();
+
+            // Asociar el ID del Resto al usuario
+            // Asegurar tipo ObjectId al pushear
+            user.restos.push(savedResto._id as unknown as mongoose.Types.ObjectId);
+            await user.save();
+
+            res.status(201).json({
+                message: "Resto creado correctamente",
+                resto: savedResto,
+            });
         } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Error al crear Restó" });
+            console.error(error);
+            const err = error as Error & { code?: number; keyPattern?: Record<string, number>; errors?: unknown };
+            if (err.code === 11000) {
+                return res.status(409).json({
+                    error: "Slug ya en uso",
+                    message:
+                        err.keyPattern?.slug != null
+                            ? "Ya existe un restaurante con ese slug."
+                            : "Conflicto de datos únicos al guardar.",
+                    code: "DUPLICATE_KEY",
+                });
+            }
+            if (err.name === "ValidationError") {
+                return res.status(400).json({
+                    error: "Validación",
+                    message: err.message,
+                    details: err.errors,
+                });
+            }
+            res.status(500).json({
+                error: "Error al crear Restó: " + (err.message || String(error)),
+                message: err.message || String(error),
+            });
         }
     }
 
