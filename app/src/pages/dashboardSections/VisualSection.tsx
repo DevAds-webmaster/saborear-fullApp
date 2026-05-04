@@ -90,7 +90,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
       <div className="p-4 text-gray-600">
         <SectionTitleWithHelp
           title="Personalización Visual"
-          videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+          videoUrl="https://youtu.be/rXWTZxA5KWo"
         />
         <p>No hay restaurante seleccionado.</p>
       </div>
@@ -196,7 +196,7 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
     <div className="p-4">
       <SectionTitleWithHelp
         title="Personalización Visual"
-        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+        videoUrl="https://youtu.be/rXWTZxA5KWo"
       />
       <p className="text-gray-600 mb-4">Edita las plantillas visuales y observa la vista previa en tiempo real.</p>
       {optionsLoading && (

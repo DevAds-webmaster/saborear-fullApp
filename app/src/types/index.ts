@@ -1,3 +1,5 @@
+import type { Dispatch, SetStateAction } from "react";
+
 export interface ChatMessage {
   id: string;
   user_id: string;
@@ -33,9 +35,9 @@ export interface AuthContextType {
 
 export interface RestoContextType {
   resto: Resto | null;
-  setResto: (resto: Resto| null) => void;
+  setResto: Dispatch<SetStateAction<Resto | null>>;
   restoPreview: Resto | null;
-  setRestoPreview: (resto: Resto| null) => void;
+  setRestoPreview: Dispatch<SetStateAction<Resto | null>>;
   isLoading: boolean;
   setSlug: (slug: string) => void;
   slug: string| null;
@@ -85,11 +87,26 @@ export interface PrintSetup {
   footerPage: string;
 }
 
+export interface RestoLocation {
+  /** Fuente textual principal de ubicación del local. */
+  formattedAddress: string;
+  lat?: number;
+  lng?: number;
+  placeId?: string;
+  references?: string;
+  /** Visibilidad en descubrimiento RED Sabore.ar */
+  appearOnRedSaboreAr?: boolean;
+  /** Radio en km para aparición en búsquedas cercanas */
+  searchRadiusKm?: number;
+}
+
 export interface Resto {
   _id: string;
   name: string;
   slug: string;
   phone?: string;
+  location?: RestoLocation;
+  /** @deprecated legacy temporal; usar location.formattedAddress */
   address?: string;
   params: Parameters[];
   menu: Menu;
@@ -207,6 +224,8 @@ export interface Config {
     delayCloseModal: number; // Tiempo en milisegundos para cerrar el modal de los platos
   };
   slogan:string;
+  /** Descripción breve visible en RED Sabore.ar (máx. 100 caracteres). */
+  description?: string;
   template: string;
   paramModalsEnable : boolean;
   paramModalsDelay : number;

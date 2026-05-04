@@ -1,6 +1,4 @@
 import { useEffect,useState } from 'react'
-import { Link } from 'react-router-dom'
-
 // Importing styles
 import type { Config, Style } from '../types';
 import { getDishImageUrl } from '../services/media';
@@ -64,14 +62,17 @@ export function Header ( {mode}:{mode:string} ) {
     const { selectedCategoryName, triggerMultiPageBack } = usePublic();
     const isMultiPage = option?.template === "multi-page";
     const showBackButton = isMultiPage && !!selectedCategoryName;
+    const currentResto = mode === "preview" ? restoPreview : resto;
+    const locationText = currentResto?.location?.formattedAddress || currentResto?.address || "";
+    const locationReferences = currentResto?.location?.references || "";
 
     return (
     <>
         <div className="w-full z-50 ">
         {/* Header Section */}
             <header className={style?.headerStyles.container}>
-                <div className='sm:flex hidden flex-row my-auto px-5 py-1 text-2xl'>
-                    <div className='flex flex-col sm:flex-row w-full justify-between items-center'>
+                <div className='sm:flex hidden flex-row my-auto px-5 py-1 text-2xl items-center'>
+                    <div className='flex flex-row flex-1 justify-around items-center '>
                         <div className="place-self-center  object-cover rounded-md">
                             {logoImage && (
                                 <img src={getDishImageUrl(option?.srcImgLogo, 192)}  className="h-24"/>
@@ -79,9 +80,15 @@ export function Header ( {mode}:{mode:string} ) {
                         </div>
                         {(sloganText && sloganText.length > 0) &&
                             <h1 className={'sm:mr-auto sm:pl-5 '+style?.headerStyles.sloganStyle}>{sloganText}</h1>
-                        } 
+                        }
+                        {locationText && (
+                            <div className="sm:pl-5 text-sm text-gray-700">
+                                <p>{locationText}</p>
+                                {locationReferences && <p>Referencia: {locationReferences}</p>}
+                            </div>
+                        )}
                     </div>
-                    <div className='flex text-right flex-row w-full my-auto justify-end'>
+                    <div className='flex flex-row items-center justify-end'>
                         {
                             option?.headerOptions.enableFacebookBtn && 
                             <a className='w-[30px] mx-4 text-lg mb-2 sm:mb-0' href={option?.headerOptions.enableFacebookLink} target="_blank" rel="noopener noreferrer">
@@ -103,18 +110,24 @@ export function Header ( {mode}:{mode:string} ) {
                        
                     </div>
                 </div>
-                <div className='flex sm:hidden flex-row my-auto px-5 py-1 text-2xl'>
+                <div className='flex sm:hidden flex-row my-auto px-5 py-1 text-2xl items-center'>
                     <div className='flex flex-col sm:flex-row w-full justify-between items-center'>
-                        <Link  to={'/'} className="place-self-center  object-cover rounded-md">
+                        <div className="place-self-center  object-cover rounded-md">
                             {logoImage && (
                                 <img src={getDishImageUrl(option?.srcImgLogo, 192)}  className="h-24"/>
                             )}
-                        </Link>
+                        </div>
                     </div>
                     <div className='flex flex-col w-full space-y-2 justify-center'>
                         {(sloganText && sloganText.length > 0) &&
                                 <h1 className={'sm:mr-auto sm:pl-5 '+style?.headerStyles.sloganStyle}>{sloganText}</h1>
-                        } 
+                        }
+                        {locationText && (
+                            <div className="sm:pl-5 text-xs text-gray-700 text-center">
+                                <p>{locationText}</p>
+                                {locationReferences && <p>Referencia: {locationReferences}</p>}
+                            </div>
+                        )}
                         <div className='flex flex-row w-full my-auto justify-around'>
                             {
                                 option?.headerOptions.enableFacebookBtn && 

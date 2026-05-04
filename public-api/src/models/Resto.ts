@@ -19,6 +19,18 @@ export interface IPrintSetup {
   footerPage: string;
 }
 
+export interface IRestoLocation {
+  /** Fuente textual principal de ubicación del local (Google formatted_address). */
+  formattedAddress: string;
+  /** Coordenadas WGS84 para mapas, distancias e integraciones. */
+  lat?: number;
+  lng?: number;
+  placeId?: string;
+  references?: string;
+  appearOnRedSaboreAr?: boolean;
+  searchRadiusKm?: number;
+}
+
 export const printSetupSchema = new Schema<IPrintSetup>(
   {
     showImages: { type: Boolean, default: true },
@@ -29,10 +41,33 @@ export const printSetupSchema = new Schema<IPrintSetup>(
   { _id: false },
 );
 
+export const locationSchema = new Schema<IRestoLocation>(
+  {
+    formattedAddress: { type: String, trim: true },
+    lat: {
+      type: Number,
+      min: -90,
+      max: 90,
+    },
+    lng: {
+      type: Number,
+      min: -180,
+      max: 180,
+    },
+    placeId: { type: String, trim: true },
+    references: { type: String, trim: true },
+    appearOnRedSaboreAr: { type: Boolean, default: true },
+    searchRadiusKm: { type: Number, default: 5, min: 0.5, max: 100 },
+  },
+  { _id: false },
+);
+
 export interface IResto extends Document {
   name: string;
   slug: string;
   phone?: string;
+  location?: IRestoLocation;
+  /** @deprecated legacy temporal; usar location.formattedAddress */
   address?: string;
   cart_settings: ICartSettings;
   params: IParameters[];
@@ -59,6 +94,7 @@ export const restoSchema = new Schema<IResto>({
     match: /^[a-z0-9]+(?:-[a-z0-9]+)*$/  // solo letras minúsculas, números y guiones medios
   },
   phone: { type: String },
+  location: { type: locationSchema, required: false },
   address: { type: String },
   cart_settings: cartSettingsSchema,
   params: [parametersSchema],

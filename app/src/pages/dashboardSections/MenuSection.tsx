@@ -259,7 +259,7 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
     <div className="p-4">
       <SectionTitleWithHelp
         title="Gestión de Menú"
-        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+        videoUrl="https://youtu.be/Qvwmywx0WU4"
       />
       <p className="text-gray-600 mb-4">Edita el menú y observa la vista previa en tiempo real.</p>
       
@@ -776,7 +776,7 @@ function Modal({ type, item, onCancel, onConfirm, orderLabel }: any) {
                   <input type="checkbox" name="veggie" checked={!!form.veggie} onChange={handleCheckboxChange} />
                   Veggie
                 </label>
-                <label className="flex items-center gap-2 text-sm">
+                {/*<label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" name="EnDisplayDePaso" checked={!!form.EnDisplayDePaso} onChange={handleCheckboxChange} />
                   En Display de Paso
                 </label>
@@ -791,7 +791,7 @@ function Modal({ type, item, onCancel, onConfirm, orderLabel }: any) {
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" name="EnDisplayComercial-3" checked={!!form["EnDisplayComercial-3"]} onChange={handleCheckboxChange} />
                   En Display Comercial 3
-                </label>
+                </label>*/}
               </div>
 
               <div className="mt-2">

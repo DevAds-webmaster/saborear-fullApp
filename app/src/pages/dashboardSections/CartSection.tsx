@@ -102,7 +102,7 @@ export default function CartSection() {
     <div className="p-4">
       <SectionTitleWithHelp
         title="Carrito y WhatsApp"
-        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+        videoUrl="https://youtu.be/7glompYcZMA"
       />
       <p className="text-gray-600 mb-4">Edita el carrito de whatsapp para poder recibir pedidos de manera mas facil y precisa.</p>
       <div className="my-6 flex">

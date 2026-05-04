@@ -34,6 +34,8 @@ export interface IConfig {
         delayCloseModal: number; // Tiempo en milisegundos para cerrar el modal de los platos
     };
     slogan:string;
+    /** Texto corto para listados en RED Sabore.ar (máx. 100 caracteres). */
+    description?: string;
     template: string;
     paramModalsEnable : boolean;
     paramModalsDelay : number;
@@ -108,6 +110,7 @@ export const configSchema = new Schema<IConfig>({
         delayCloseModal: { type: Number, required: true } // Tiempo en milisegundos para cerrar el modal de los platos
     },
     slogan:{ type: String, required: true },
+    description: { type: String, maxlength: 100, trim: true },
     template: { type: String, required: true, default: "single-page" },
     paramModalsEnable : { type: Boolean, required: true },
     paramModalsDelay : { type: Number, required: true },

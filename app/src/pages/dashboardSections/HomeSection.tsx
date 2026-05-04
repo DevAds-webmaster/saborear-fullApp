@@ -27,7 +27,7 @@ const HomeSection: React.FC = ()=> {
     <div>
       <SectionTitleWithHelp
         title="Panel Principal"
-        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+        videoUrl="https://youtu.be/xacXmqkeMo8"
       />
       <div className="grid grid-cols-3 gap-4 grid-rows-2">
         <div className="p-4 bg-white rounded shadow col-span-full md:col-span-2">

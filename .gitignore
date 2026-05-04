@@ -41,6 +41,7 @@ coverage/
 !app/.env.example
 !server-api/.env.example
 !public-api/.env.example
+!manager/.env.example
 menu/.env
 menu/.env.local
 menu/.env.production
@@ -53,6 +54,9 @@ server-api/.env.production
 public-api/.env
 public-api/.env.local
 public-api/.env.production
+manager/.env
+manager/.env.local
+manager/.env.production
 
 
 # === Editores ===

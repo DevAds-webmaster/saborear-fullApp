@@ -55,7 +55,7 @@ export default function StaffSection() {
     <div className="max-w-3xl">
       <SectionTitleWithHelp
         title="Usuarios del staff"
-        videoUrl="https://www.youtube.com/watch?v=ysz5S6PUM-U"
+        videoUrl="https://youtu.be/299wjYD2CZs"
       />
 
       <div className="mb-4">

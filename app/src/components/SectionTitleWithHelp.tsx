@@ -26,34 +26,50 @@ function toEmbedUrl(url: string): string {
   return url;
 }
 
-export function SectionTitleWithHelp({ title, videoUrl }: SectionTitleWithHelpProps) {
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
+const helpBtnClass =
+  "inline-flex shrink-0 items-center gap-2 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100";
+
+export type SectionVideoHelpButtonProps = {
+  videoUrl: string;
+  /** Texto del botón (p. ej. "Ayuda" en dashboard, "Video tutorial" en onboarding). */
+  buttonLabel?: string;
+  /** Título del encabezado del modal. */
+  modalTitle: string;
+  /** `title` del iframe (accesibilidad). Por defecto coincide con `modalTitle`. */
+  iframeTitle?: string;
+  /** `aria-label` del botón cerrar del modal. */
+  closeAriaLabel?: string;
+};
+
+/** Botón que abre un modal con el video de YouTube embebido (mismo patrón que las secciones del dashboard). */
+export function SectionVideoHelpButton({
+  videoUrl,
+  buttonLabel = "Video tutorial",
+  modalTitle,
+  iframeTitle,
+  closeAriaLabel = "Cerrar",
+}: SectionVideoHelpButtonProps) {
+  const [open, setOpen] = useState(false);
   const embedUrl = toEmbedUrl(videoUrl);
+  const frameTitle = iframeTitle ?? modalTitle;
 
   return (
     <>
-      <div className="flex items-center mb-4 gap-3">
-        <h1 className="text-xl font-bold title-section">{title}</h1>
-        <button
-          type="button"
-          onClick={() => setIsHelpOpen(true)}
-          className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
-        >
-          <CircleQuestionMark size={16} />
-          Ayuda
-        </button>
-      </div>
+      <button type="button" onClick={() => setOpen(true)} className={helpBtnClass}>
+        <CircleQuestionMark size={16} aria-hidden />
+        {buttonLabel}
+      </button>
 
-      {isHelpOpen && (
+      {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-3xl rounded-lg bg-white shadow-lg">
             <div className="flex items-center justify-between border-b px-4 py-3">
-              <h2 className="text-lg font-semibold">Ayuda de seccion: {title}</h2>
+              <h2 className="text-lg font-semibold">{modalTitle}</h2>
               <button
                 type="button"
-                onClick={() => setIsHelpOpen(false)}
+                onClick={() => setOpen(false)}
                 className="rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-                aria-label="Cerrar ayuda"
+                aria-label={closeAriaLabel}
               >
                 <X size={18} />
               </button>
@@ -64,7 +80,7 @@ export function SectionTitleWithHelp({ title, videoUrl }: SectionTitleWithHelpPr
                 <iframe
                   className="h-full w-full"
                   src={embedUrl}
-                  title={`Ayuda de seccion: ${title}`}
+                  title={frameTitle}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
@@ -75,5 +91,22 @@ export function SectionTitleWithHelp({ title, videoUrl }: SectionTitleWithHelpPr
         </div>
       )}
     </>
+  );
+}
+
+export function SectionTitleWithHelp({ title, videoUrl }: SectionTitleWithHelpProps) {
+  const modalTitle = `Ayuda de sección: ${title}`;
+
+  return (
+    <div className="mb-4 flex items-center gap-3">
+      <h1 className="title-section text-xl font-bold">{title}</h1>
+      <SectionVideoHelpButton
+        videoUrl={videoUrl}
+        buttonLabel="Ayuda"
+        modalTitle={modalTitle}
+        iframeTitle={modalTitle}
+        closeAriaLabel="Cerrar ayuda"
+      />
+    </div>
   );
 }

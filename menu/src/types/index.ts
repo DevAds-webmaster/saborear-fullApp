@@ -3,6 +3,8 @@ export interface Resto {
   name: string;
   slug: string;
   phone?: string;
+  location?: RestoLocation;
+  /** @deprecated legacy temporal; usar location.formattedAddress */
   address?: string;
   params: Parameters[];
   menu: Menu;
@@ -13,6 +15,17 @@ export interface Resto {
   mp_subscription_id?: string | null;
   subscription_status?: string;
   next_payment_date?: string | null;
+}
+
+export interface RestoLocation {
+  /** Fuente textual principal de ubicación del local. */
+  formattedAddress: string;
+  lat?: number;
+  lng?: number;
+  placeId?: string;
+  references?: string;
+  appearOnRedSaboreAr?: boolean;
+  searchRadiusKm?: number;
 }
 
 export interface CartSettings {
@@ -119,6 +132,7 @@ export interface Config {
     delayCloseModal: number;
   };
   slogan:string;
+  description?: string;
   template: string;
   paramModalsEnable : boolean;
   paramModalsDelay : number;

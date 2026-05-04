@@ -14,7 +14,9 @@ const allowedOriginsFromEnv = (process.env.CORS_ORIGINS || "")
 const defaultAllowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
+  "http://localhost:5175",
   "https://menu.sabore.ar",
+  "https://red.sabore.ar",
   "https://sabore.ar",
   ...allowedOriginsFromEnv,
 ];

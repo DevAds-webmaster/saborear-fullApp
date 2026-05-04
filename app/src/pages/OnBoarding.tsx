@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ObjectId } from "bson";
 import { PreviewModal } from "../components/PreviewModal";
+import { SectionVideoHelpButton } from "../components/SectionTitleWithHelp";
+import {
+  GooglePlacesLocationSection,
+  type GooglePlacesLocationPayload,
+  DEFAULT_APPEAR_ON_RED_SABORE_AR,
+  DEFAULT_SEARCH_RADIUS_KM,
+} from "../components/GooglePlacesLocationSection";
 import { useResto } from "../contexts/RestoContext";
 import { useAuth } from "../contexts/AuthContext";
 import type { Config, Dish, MDC, Resto, SignedImage, Style, ThemeOptions } from "../types";
@@ -12,6 +19,14 @@ import { normalizePhoneForWa } from "../utils/whatsapp";
 type Step = 1 | 2 | 3 | 4;
 
 const TOTAL_STEPS = 4;
+
+/** Valor por defecto del enlace de YouTube del tutorial del paso 1. */
+const DEFAULT_ONBOARDING_STEP_1_TUTORIAL_VIDEO_URL = "https://youtu.be/ggmDQF4M_LY";
+
+export type OnBoardingProps = {
+  /** URL de YouTube (`watch`, `youtu.be` o `embed`) para el botón «Video tutorial» del paso 1. */
+  step1TutorialVideoUrl?: string;
+};
 
 const STEP_LABELS: { step: Step; short: string }[] = [
   { step: 1, short: "Datos" },
@@ -104,7 +119,6 @@ function normalizeSlugInput(raw: string): string {
 }
 
 type HeaderSocialRow = { enabled: boolean; url: string };
-
 type WhatsCountry = {
   region: CountryCode;
   callingCode: string; // sin "+"
@@ -242,7 +256,9 @@ Tipo: {orderType}
 Dirección: {address}
 Tel: {phone}`;
 
-export default function OnBoarding() {
+export default function OnBoarding({
+  step1TutorialVideoUrl = DEFAULT_ONBOARDING_STEP_1_TUTORIAL_VIDEO_URL,
+}: OnBoardingProps) {
   const { user, logout } = useAuth();
   const { setRestoPreview, getThemeOptions, getStylesOptions, createResto, setId } = useResto();
 
@@ -258,6 +274,15 @@ export default function OnBoarding() {
   const [whatsCountry, setWhatsCountry] = useState<WhatsCountry>(() => WHATS_COUNTRIES[0]);
   const [phoneNational, setPhoneNational] = useState("");
   const [slogan, setSlogan] = useState("");
+  const [locationPayload, setLocationPayload] = useState<GooglePlacesLocationPayload>({
+    selectedLocation: null,
+    locationReferences: "",
+    appearOnRedSaboreAr: DEFAULT_APPEAR_ON_RED_SABORE_AR,
+    searchRadiusKm: DEFAULT_SEARCH_RADIUS_KM,
+  });
+  const handleLocationChange = useCallback((p: GooglePlacesLocationPayload) => {
+    setLocationPayload(p);
+  }, []);
   const [logoImage, setLogoImage] = useState<SignedImage>(EMPTY_LOGO);
   const [logoUploading, setLogoUploading] = useState(false);
   const [headerSocial, setHeaderSocial] = useState<{
@@ -432,10 +457,21 @@ export default function OnBoarding() {
   });
 
   const buildDraftResto = (): Partial<Resto> => {
+    const { selectedLocation, locationReferences } = locationPayload;
+    const locationSave = selectedLocation
+      ? {
+          ...selectedLocation,
+          references: locationReferences.trim() || undefined,
+          appearOnRedSaboreAr: locationPayload.appearOnRedSaboreAr,
+          searchRadiusKm: locationPayload.searchRadiusKm,
+        }
+      : undefined;
+
     return {
       name: name.trim(),
       slug: slug.trim().toLowerCase(),
       phone: phone.trim() || undefined,
+      location: locationSave,
       params: [],
       style: selectedStyle,
       config: buildOnboardingConfig(),
@@ -532,12 +568,16 @@ export default function OnBoarding() {
   useEffect(() => {
     setRestoPreview(buildDraftResto() as Resto);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, slug, phone, slogan, logoImage, headerSocial, categoryName, dish1, dish2, selectedStyle]);
+  }, [name, slug, phone, locationPayload, slogan, logoImage, headerSocial, categoryName, dish1, dish2, selectedStyle]);
 
   const validateStep = (currentStep: Step) => {
     if (currentStep === 1) {
       if (!name.trim() || !slug.trim()) {
         alert("Completa nombre y slug para continuar.");
+        return false;
+      }
+      if (!locationPayload.selectedLocation?.formattedAddress) {
+        alert("Selecciona y confirma una dirección del local para continuar.");
         return false;
       }
       const nets: { key: keyof typeof headerSocial; label: string }[] = [
@@ -685,9 +725,16 @@ export default function OnBoarding() {
           <section className="lg:col-span-3 rounded-2xl border border-amber-400/55 bg-white shadow-md shadow-amber-500/15 p-5 sm:p-6 min-h-[75vh]">
             {step === 1 && (
               <div className="space-y-5">
-                <div className="border-l-4 border-yellow-600 pl-4 py-0.5">
-                  <h2 className="text-lg font-bold text-gray-900">Paso 1: Datos principales</h2>
-                  <p className="text-sm text-gray-600 mt-0.5">Identidad básica de tu local</p>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1 border-l-4 border-yellow-600 py-0.5 pl-4">
+                    <h2 className="text-lg font-bold text-gray-900">Paso 1: Datos principales</h2>
+                    <p className="mt-0.5 text-sm text-gray-600">Identidad básica de tu local</p>
+                  </div>
+                  <SectionVideoHelpButton
+                    videoUrl={step1TutorialVideoUrl}
+                    buttonLabel="Video tutorial"
+                    modalTitle="Video tutorial — Onboarding"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-1.5" htmlFor="onb-name">
@@ -729,9 +776,17 @@ export default function OnBoarding() {
                     {import.meta.env.VITE_MENU_PUBLIC_URL}/{"{slug}"}
                   </p>
                 </div>
+                <GooglePlacesLocationSection
+                  variant="onboarding"
+                  mapVisible={step === 1}
+                  syncKey="onboarding"
+                  initialLocation={null}
+                  htmlIdPrefix="onb-location"
+                  onChange={handleLocationChange}
+                />
                 <div>
                   <label className="block text-sm font-medium text-gray-800 mb-1.5">WhatsApp (opcional)</label>
-                  <div className="flex flex-row gap-3 items-start">
+                  <div className="flex flex-row flex-wrap gap-3 items-start">
                     <div className="flex flex-col">
                       <select
                         value={whatsCountry.region}
@@ -761,11 +816,11 @@ export default function OnBoarding() {
                         setPhone(cleaned ? `+${whatsCountry.callingCode}${cleaned}` : "");
                       }}
                       inputMode="numeric"
-                      className="w-full rounded-xl border border-amber-400 bg-white px-3 py-2.5 text-gray-900 placeholder:text-amber-900/45 focus:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-600/35"
+                      className="max-w-40 rounded-xl border border-amber-400 bg-white px-3 py-2.5 text-gray-900 placeholder:text-amber-900/45 focus:border-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-600/35"
                       placeholder="Ej: 9112233445"
                     />
 
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={handleVerifyPhone}
@@ -1220,6 +1275,22 @@ export default function OnBoarding() {
                       )}
                     </p>
                   </div>
+                </div>
+                <div className="rounded-xl border border-amber-500/70 bg-amber-200/40 p-4">
+                  <h3 className="font-semibold text-amber-900 mb-3 pb-2 border-b border-amber-300">Ubicación</h3>
+                  <p className="text-sm text-gray-800">
+                    <strong className="text-amber-900/80">Dirección de la casa de comidas:</strong>{" "}
+                    {locationPayload.selectedLocation?.formattedAddress?.trim() || "—"}
+                  </p>
+                  <p className="text-sm text-gray-800 mt-2">
+                    <strong className="text-amber-900/80">Referencia adicional:</strong>{" "}
+                    {(locationPayload.locationReferences.trim() || locationPayload.selectedLocation?.references || "").trim() || "—"}
+                  </p>
+                  {locationPayload.selectedLocation?.lat != null && locationPayload.selectedLocation?.lng != null && (
+                    <p className="text-xs text-gray-600 mt-2">
+                      Coordenadas (WGS84): {locationPayload.selectedLocation.lat.toFixed(6)}, {locationPayload.selectedLocation.lng.toFixed(6)}
+                    </p>
+                  )}
                 </div>
                 <div className="rounded-xl border border-amber-500/70 bg-amber-200/40 p-4">
                   <h3 className="font-semibold text-amber-900 mb-2">Tema</h3>
