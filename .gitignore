@@ -57,6 +57,9 @@ public-api/.env.production
 manager/.env
 manager/.env.local
 manager/.env.production
+red/.env
+red/.env.local
+red/.env.production
 
 
 # === Editores ===
