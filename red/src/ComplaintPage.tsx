@@ -88,9 +88,9 @@ export default function ComplaintPage() {
         <Link to="/" className="text-sm font-medium text-amber-700 hover:underline">
           ← Volver a RED
         </Link>
-        <h1 className="mt-3 text-2xl font-bold text-stone-900">Envíanos tu reclamo</h1>
+        <h1 className="mt-3 text-2xl font-bold text-stone-900">Envíanos tu queja o sugerencia</h1>
         <p className="mt-2 text-sm text-stone-600">
-          Completá este formulario para que podamos revisar tu situación y hacer el seguimiento.
+          Completá este formulario para que podamos revisar tu situación y hacer el seguimiento. Nos ayudas a mejorar nuestro servicio.
         </p>
       </header>
 
@@ -108,7 +108,7 @@ export default function ComplaintPage() {
           </label>
 
           <label className="block text-sm">
-            <span className="mb-1 block font-medium text-stone-800">Nombre del local*</span>
+            <span className="mb-1 block font-medium text-stone-800">Nombre del emprendimiento*</span>
             <input
               value={form.restaurantName}
               onChange={(e) => setForm((prev) => ({ ...prev, restaurantName: e.target.value }))}

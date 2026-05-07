@@ -23,7 +23,7 @@ const defaultAllowedOrigins = [
   "https://localhost:5173",
   "http://localhost:5174",
   "https://localhost:5174",
-  "https://singular-raindrop-013705.netlify.app/",
+  "https://singular-raindrop-013705.netlify.app",
   ...allowedOriginsFromEnv,
 ];
 

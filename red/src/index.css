@@ -3,5 +3,6 @@
 @tailwind utilities;
 
 body {
-  @apply min-h-screen bg-stone-100 text-stone-900 antialiased;
+  @apply min-h-screen text-neutral-800 antialiased;
+  background-color: #fdfcf8;
 }
