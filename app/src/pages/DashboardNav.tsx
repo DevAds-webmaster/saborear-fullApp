@@ -9,7 +9,8 @@ import {
   Soup,
   X,
   Edit,
-  Users
+  Users,
+  Globe
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useResto } from "../contexts/RestoContext"; 
@@ -36,6 +37,7 @@ export default function DashboardNav({ active, onChange }:any) {
     // { id: "payments", label: "Suscripción y Pagos", icon: <DollarSign size={20} /> },
     // { id: "stats", label: "Estadísticas", icon: <BarChart3 size={20} /> },
     { id: "staff", label: "Mi Staff", icon: <Users  size={20} /> ,admin_required: true },
+    { id: "redSaborear", label: "Red Saborear", icon: <Globe size={20} />, admin_required: true },
     { id: "config", label: "Configuracion", icon: <Bolt  size={20} /> ,admin_required: true },
   ];
 

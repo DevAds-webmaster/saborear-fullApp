@@ -424,8 +424,8 @@ export default function VisualSection({ resto, updateResto }: VisualSectionProps
 
         {/* Principal Section */}
         <section>
-          <h2 className="text-lg font-semibold">Sección Principal</h2>
-          <p className="text-sm text-gray-500">Estilos para la sección principal del menú.</p>
+          <h2 className="text-lg font-semibold">Sección Destacada</h2>
+          <p className="text-sm text-gray-500">Estilos para la sección destacada del menú.</p>
           <div className="mt-2 grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm">Contenedor</label>

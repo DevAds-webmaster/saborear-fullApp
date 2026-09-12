@@ -6,6 +6,8 @@ export interface Resto {
   location?: RestoLocation;
   /** @deprecated legacy temporal; usar location.formattedAddress */
   address?: string;
+  /** Si es false, la dirección no se muestra en el menú público ni en RED. */
+  view_address?: boolean;
   params: Parameters[];
   menu: Menu;
   config: Config;

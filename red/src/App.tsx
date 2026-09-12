@@ -10,6 +10,7 @@ export type RedNearbyItem = {
   references: string | null;
   description: string | null;
   distanceKm: number;
+  view_address?: boolean;
 };
 
 function trimBase(url: string): string {
@@ -231,7 +232,7 @@ export default function App() {
 
   return (
     <>
-      <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col sm:px-4 py-6">
+      <div className="mx-auto flex h-dvh min-h-0 w-full max-w-2xl flex-col overflow-hidden sm:px-4 py-6">
         <header className="shrink-0">
           <div className="flex items-start gap-3">
             <div
@@ -286,17 +287,17 @@ export default function App() {
           </div>
         </div>
 
-        <main className="mt-6 flex min-h-0 flex-1 flex-col">
-          <section className="flex min-h-[280px] flex-col p-5 ">
+        <main className="mt-6 flex min-h-0 flex-1 flex-col overflow-hidden">
+          <section className="flex min-h-0 flex-1 flex-col p-5">
             {showResultsHeading ? (
-              <h2 className="mb-4 text-lg font-extrabold tracking-tight text-[#06373A]">
+              <h2 className="mb-4 shrink-0 text-lg font-extrabold tracking-tight text-[#06373A]">
                 Negocios cerca tuyo
               </h2>
             ) : null}
 
             {error ? (
               <div
-                className="mb-4 rounded-xl border border-red-100 bg-red-50/90 px-4 py-3 text-sm leading-relaxed text-red-900"
+                className="mb-4 shrink-0 rounded-xl border border-red-100 bg-red-50/90 px-4 py-3 text-sm leading-relaxed text-red-900"
                 role="alert"
               >
                 {error}
@@ -304,7 +305,7 @@ export default function App() {
             ) : null}
 
             {loading ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
                 <ResultsSkeleton />
               </div>
             ) : null}
@@ -337,7 +338,7 @@ export default function App() {
             ) : null}
 
             {!loading && items && items.length > 0 ? (
-              <ul className="flex flex-col gap-3">
+              <ul className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-y-contain">
                 {items.map((it) => (
                   <li key={it.slug}>
                     <button
@@ -368,7 +369,7 @@ export default function App() {
                           <p className="mt-1 line-clamp-2 text-sm leading-snug text-neutral-500">
                             {it.description}
                           </p>
-                        ) : it.address ? (
+                        ) : it.view_address !== false && it.address ? (
                           <p className="mt-1 truncate text-xs text-neutral-400">{it.address}</p>
                         ) : null}
                         <p className="mt-1.5 text-sm text-neutral-500">

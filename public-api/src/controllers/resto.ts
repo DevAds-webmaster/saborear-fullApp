@@ -8,6 +8,7 @@ type LeanRestoRedNearby = {
     name: string;
     slug: string;
     address?: string;
+    view_address?: boolean;
     location?: {
         lat?: number;
         lng?: number;
@@ -26,6 +27,7 @@ export type RedNearbyRestoDto = {
     references: string | null;
     description: string | null;
     distanceKm: number;
+    view_address: boolean;
 };
 
 class restoController {
@@ -51,7 +53,7 @@ class restoController {
                 "location.lat": { $exists: true, $ne: null },
                 "location.lng": { $exists: true, $ne: null },
             })
-                .select("name slug location address config.srcImgLogo.secure_url config.description")
+                .select("name slug location address view_address config.srcImgLogo.secure_url config.description")
                 .lean<LeanRestoRedNearby[]>();
 
             const results: RedNearbyRestoDto[] = [];
@@ -69,9 +71,10 @@ class restoController {
                         : DEFAULT_SEARCH_RADIUS_KM;
                 if (distKm > radiusKm) continue;
 
+                const viewAddress = doc.view_address !== false;
                 const formatted = loc.formattedAddress?.trim();
                 const legacy = doc.address?.trim();
-                const address = formatted || legacy || "";
+                const address = viewAddress ? formatted || legacy || "" : "";
 
                 const desc = doc.config?.description?.trim();
                 results.push({
@@ -79,9 +82,10 @@ class restoController {
                     name: doc.name,
                     logoUrl: doc.config?.srcImgLogo?.secure_url ?? null,
                     address,
-                    references: loc.references?.trim() || null,
+                    references: viewAddress ? loc.references?.trim() || null : null,
                     description: desc || null,
                     distanceKm: Math.round(distKm * 100) / 100,
+                    view_address: viewAddress,
                 });
             }
 

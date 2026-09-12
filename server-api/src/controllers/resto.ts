@@ -72,6 +72,9 @@ function sanitizeRestoPayload(restoRaw: unknown): Record<string, unknown> {
     const location = sanitizeLocationPayload(resto.location);
     if (location) resto.location = location;
     if (resto.location === undefined) delete resto.location;
+    if (resto.view_address !== undefined) {
+        resto.view_address = toBooleanOrDefault(resto.view_address, true);
+    }
     return resto;
 }
 

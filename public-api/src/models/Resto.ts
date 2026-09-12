@@ -69,6 +69,8 @@ export interface IResto extends Document {
   location?: IRestoLocation;
   /** @deprecated legacy temporal; usar location.formattedAddress */
   address?: string;
+  /** Si es false, la dirección no se muestra en el menú público ni en RED. */
+  view_address?: boolean;
   cart_settings: ICartSettings;
   params: IParameters[];
   menu: IMenu;
@@ -96,6 +98,7 @@ export const restoSchema = new Schema<IResto>({
   phone: { type: String },
   location: { type: locationSchema, required: false },
   address: { type: String },
+  view_address: { type: Boolean, default: true },
   cart_settings: cartSettingsSchema,
   params: [parametersSchema],
   menu: menuSchema,

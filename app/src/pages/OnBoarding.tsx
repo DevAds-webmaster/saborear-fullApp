@@ -256,11 +256,22 @@ Tipo: {orderType}
 Dirección: {address}
 Tel: {phone}`;
 
+/** Slug estable para el iframe de preview en onboarding (no depende del slug del formulario). */
+function createOnboardingDraftPreviewSlug(): string {
+  const id =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID().replace(/-/g, "").slice(0, 12)
+      : `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+  return `_draft_${id}`;
+}
+
 export default function OnBoarding({
   step1TutorialVideoUrl = DEFAULT_ONBOARDING_STEP_1_TUTORIAL_VIDEO_URL,
 }: OnBoardingProps) {
   const { user, logout } = useAuth();
   const { setRestoPreview, getThemeOptions, getStylesOptions, createResto, setId } = useResto();
+
+  const onboardingPreviewSlug = useMemo(() => createOnboardingDraftPreviewSlug(), []);
 
   const [step, setStep] = useState<Step>(1);
   const [saving, setSaving] = useState(false);
@@ -1334,7 +1345,12 @@ export default function OnBoarding({
           </section>
 
           <aside className="lg:col-span-1">
-            <PreviewModal open mode="embedded" className="h-full" />
+            <PreviewModal
+              open
+              mode="embedded"
+              className="h-full"
+              iframeSlug={onboardingPreviewSlug}
+            />
           </aside>
         </div>
       </div>

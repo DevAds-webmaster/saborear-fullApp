@@ -67,8 +67,11 @@ export function Header ( {mode}:{mode:string} ) {
     const isMultiPage = option?.template === "multi-page";
     const showBackButton = isMultiPage && !!selectedCategoryName;
     const currentResto = mode === "preview" ? restoPreview : resto;
-    const locationText = currentResto?.location?.formattedAddress || currentResto?.address || "";
-    const locationReferences = currentResto?.location?.references || "";
+    const showAddress = currentResto?.view_address ?? true;
+    const locationText = showAddress
+      ? currentResto?.location?.formattedAddress || currentResto?.address || ""
+      : "";
+    const locationReferences = showAddress ? currentResto?.location?.references || "" : "";
 
     return (
     <>

@@ -7,9 +7,17 @@ interface PreviewModalProps {
   onClose?: () => void;
   mode?: "modal" | "embedded";
   className?: string;
+  /** Ruta fija del iframe (`/preview/{iframeSlug}`). Evita recargas al cambiar el slug del borrador. */
+  iframeSlug?: string;
 }
 
-export function PreviewModal({ open, onClose, mode = "modal", className = "" }: PreviewModalProps) {
+export function PreviewModal({
+  open,
+  onClose,
+  mode = "modal",
+  className = "",
+  iframeSlug,
+}: PreviewModalProps) {
   const [selectedFormat, setSelectedFormat] = useState("smartphone");
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -92,7 +100,7 @@ export function PreviewModal({ open, onClose, mode = "modal", className = "" }: 
     } catch {}
   };
 
-  const previewUrl = `/preview/${restoPreview?.slug || ""}`;
+  const previewUrl = `/preview/${iframeSlug ?? restoPreview?.slug ?? ""}`;
 
   if (!open) return null;
 

@@ -14,12 +14,13 @@ import ConfigSection from "./dashboardSections/ConfigSection.tsx";
 import PaymentsSection from "./dashboardSections/PaymentsSection";
 import StatsSection from "./dashboardSections/StatsSection";
 import StaffSection from "./dashboardSections/StaffSection";
+import RedSaborearSection from "./dashboardSections/RedSaborearSection";
 import OnBoarding from "./OnBoarding";
 import { useAuth } from '../contexts/AuthContext';
 import { useResto } from '../contexts/RestoContext';
 
 function Dashboard (){
-    const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'cart'| 'payments'| 'stats' | 'config' | 'staff'> ('home');
+    const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'cart'| 'payments'| 'stats' | 'config' | 'staff' | 'redSaborear'> ('home');
     const { user, isLoading } = useAuth();
     const {resto ,updateResto ,id, setId,getResto, btnSaveEnabled} = useResto();
     const [searchParams] = useSearchParams();
@@ -27,7 +28,7 @@ function Dashboard (){
 
     useEffect(()=>{
       const viewParam = searchParams.get('view');
-      const allowed = ['home','menu','visual','cart','payments','stats' ,'config' ,'staff'] as const;
+      const allowed = ['home','menu','visual','cart','payments','stats' ,'config' ,'staff', 'redSaborear'] as const;
       type View = typeof allowed[number];
       const isView = (v: string): v is View => (allowed as readonly string[]).includes(v);
 
@@ -89,6 +90,8 @@ function Dashboard (){
             return <ConfigSection />;
           case "staff":
             return <StaffSection />;
+          case "redSaborear":
+            return <RedSaborearSection />;
           default:
             return <HomeSection />;
         }
