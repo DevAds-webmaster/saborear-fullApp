@@ -436,7 +436,7 @@ export default function MenuSection({ resto, updateResto }: MenuSectionProps) {
                               {dish.available ? 'Disponible' : 'No disponible'}
                             </span>
                             {dish.dayDish && (
-                              <span className="px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-700">Plato del día</span>
+                              <span className="px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-700">En categoría destacada</span>
                             )}
                             {dish.glutenFree && (
                               <span className="px-2 py-0.5 rounded text-xs bg-yellow-200 text-yellow-800">Sin TACC</span>
@@ -766,7 +766,7 @@ function Modal({ type, item, onCancel, onConfirm, orderLabel }: any) {
                 </label>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" name="dayDish" checked={!!form.dayDish} onChange={handleCheckboxChange} />
-                  Plato del día
+                  En categoría destacada
                 </label>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" name="glutenFree" checked={!!form.glutenFree} onChange={handleCheckboxChange} />
