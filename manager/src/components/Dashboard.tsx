@@ -4,6 +4,14 @@ import type { ImageKitOrphanFile } from "../services/orphanImages";
 import { usersService } from "../services/users";
 import type { AuthUser } from "../services/auth";
 import type { ManagerUser, RegisterPayload, UpdateUserPayload } from "../types";
+import RepartidoresSection from "./repartidores/RepartidoresSection";
+
+type DashboardTab = "usuarios" | "repartidores";
+
+const TABS: { key: DashboardTab; label: string }[] = [
+  { key: "usuarios", label: "Usuarios" },
+  { key: "repartidores", label: "Gestionar Repartidores" },
+];
 
 function orphanDisplayName(f: ImageKitOrphanFile): string {
   const n = f.name?.trim();
@@ -41,6 +49,7 @@ export default function Dashboard({
   user: AuthUser;
   onLogout: () => void | Promise<void>;
 }) {
+  const [tab, setTab] = useState<DashboardTab>("usuarios");
   const [users, setUsers] = useState<ManagerUser[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
@@ -303,6 +312,25 @@ export default function Dashboard({
           </div>
         </header>
 
+        <nav className="bg-white rounded-lg border p-1 flex flex-wrap gap-1" aria-label="Secciones">
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setTab(t.key)}
+              className={`px-4 py-2 rounded text-sm font-medium ${
+                tab === t.key ? "bg-indigo-600 text-white" : "text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+
+        {tab === "repartidores" && <RepartidoresSection />}
+
+        {tab === "usuarios" && (
+        <>
         <section className="bg-white rounded-lg border p-4">
           <h2 className="text-lg font-semibold mb-3">Crear usuario</h2>
           <form onSubmit={onSubmit} className="grid md:grid-cols-2 gap-3">
@@ -583,6 +611,8 @@ export default function Dashboard({
           {orphanSectionError && <p className="mt-3 text-sm text-red-600">{orphanSectionError}</p>}
           {purgeResultMessage && <p className="mt-3 text-sm text-green-700">{purgeResultMessage}</p>}
         </section>
+        </>
+        )}
       </div>
     </div>
   );

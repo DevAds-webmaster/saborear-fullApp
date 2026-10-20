@@ -122,6 +122,29 @@ export interface Resto {
   next_payment_date?: string | null;
 }
 
+// Repartidores
+export interface MiCalificacionRepartidor {
+  calif: number;
+  observacion: string;
+}
+
+export interface RepartidorCercano {
+  _id: string;
+  nombre: string;
+  telefono: string;
+  /** Promedio 1..5 con un decimal; 0 si no tiene votos. */
+  promedio: number;
+  cantidad: number;
+  distanciaKm: number;
+  miCalificacion: MiCalificacionRepartidor | null;
+}
+
+export interface RepartidoresCercanosResponse {
+  /** true si el resto no tiene lat/lng configurados. */
+  sinUbicacion: boolean;
+  repartidores: RepartidorCercano[];
+}
+
 export interface CartSettings {
   template: string;
   deliveryFee: number;

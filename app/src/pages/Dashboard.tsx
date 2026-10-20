@@ -16,13 +16,14 @@ import StatsSection from "./dashboardSections/StatsSection";
 import StaffSection from "./dashboardSections/StaffSection";
 import RedSaborearSection from "./dashboardSections/RedSaborearSection";
 import OnBoarding from "./OnBoarding";
+import RepartidoresFloatBar from "../components/RepartidoresFloatBar";
 import { useAuth } from '../contexts/AuthContext';
 import { useResto } from '../contexts/RestoContext';
 
 function Dashboard (){
     const [currentView, setCurrentView] = useState<'home' | 'menu' | 'visual'| 'cart'| 'payments'| 'stats' | 'config' | 'staff' | 'redSaborear'> ('home');
     const { user, isLoading } = useAuth();
-    const {resto ,updateResto ,id, setId,getResto, btnSaveEnabled} = useResto();
+    const {resto ,updateResto ,id, setId,getResto, btnSaveEnabled, setBtnSaveEnabled} = useResto();
     const [searchParams] = useSearchParams();
 
 
@@ -71,6 +72,15 @@ function Dashboard (){
       window.addEventListener('beforeunload', handleBeforeUnload);
       return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, [btnSaveEnabled]);
+
+    const irAConfigurarUbicacion = () => {
+      if (btnSaveEnabled) {
+        const res = confirm("Tienes cambios sin guardar, estas seguro de salir de esta seccion?Tus cambios se perderán");
+        if (!res) return;
+        setBtnSaveEnabled(false);
+      }
+      setCurrentView('redSaborear');
+    };
 
     const renderSection = () => {
         switch (currentView) {
@@ -122,11 +132,15 @@ function Dashboard (){
           <DashboardNav active={currentView} onChange={setCurrentView} />
     
           {/* Main content */}
-          <main className="flex-1 h-full p-6 overflow-y-auto">
+          <main className="flex-1 h-full p-6 pb-24 overflow-y-auto">
             {/*Top Bar*/}
             <TopBar/>
             {renderSection()}
           </main>
+
+          <RepartidoresFloatBar
+            onConfigurarUbicacion={user.role === "admin" ? irAConfigurarUbicacion : undefined}
+          />
         </div>
       );
 }

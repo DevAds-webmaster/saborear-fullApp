@@ -7,6 +7,7 @@ import restoRoutes from "./routes/resto.js";
 import macrosRoutes from "./routes/macros.js";
 import mediaRoutes from "./routes/media.js";
 import mpRoutes from "./routes/mpago.js";
+import repartidorRoutes from "./routes/repartidor.js";
 import bodyParser from 'body-parser';
 import path from "path";
 
@@ -66,5 +67,6 @@ app.use("/resto", restoRoutes);
 app.use("/macros", macrosRoutes);
 app.use("/media", mediaRoutes);
 app.use("/mp", mpRoutes);
+app.use("/repartidores", repartidorRoutes);
 
 export default app;
