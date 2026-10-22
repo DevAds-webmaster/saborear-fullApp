@@ -397,9 +397,9 @@ export default function App() {
           <button
             type="button"
             onClick={handleJoinNetworkClick}
-            className="block w-full text-xs leading-relaxed text-neutral-500 underline decoration-neutral-300 underline-offset-4 transition hover:text-neutral-700"
+            className="block w-full rounded-full bg-[#06373A] px-5 py-3 text-xs font-semibold leading-relaxed text-white shadow-md shadow-[#06373A]/25 transition hover:bg-[#052c2e] hover:shadow-lg active:scale-[0.98]"
           >
-            ¿Vendés comidas y te querés unir a nuestra red? Hacé click aquí
+            ¿Vendés comidas y te querés unir a nuestra red? ó tenés una moto y querés repartir? Hacé click aquí
           </button>
           <button
             type="button"
