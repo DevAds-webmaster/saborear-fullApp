@@ -287,7 +287,7 @@ export default function App() {
           </div>
         </div>
 
-        <main className="mt-6 flex min-h-0 flex-1 flex-col overflow-hidden">
+        <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <section className="flex min-h-0 flex-1 flex-col p-5">
             {showResultsHeading ? (
               <h2 className="mb-4 shrink-0 text-lg font-extrabold tracking-tight text-[#06373A]">
