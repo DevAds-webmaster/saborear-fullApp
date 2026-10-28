@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChefHat, MapPin, MapPinSearch, ShoppingCart } from "lucide-react";
+import { ChefHat, Home, MapPin, MapPinSearch, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export type RedNearbyItem = {
@@ -22,6 +22,82 @@ function formatDistanceKm(km: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 1,
   }).format(km)} km`;
+}
+
+const LOCATION_DENIED_ERROR = "location-denied";
+
+const LOCATION_HINT_CHROME_MOBILE = [
+  "Tocá el ícono a la izquierda de la dirección",
+  "Entrá a Permisos",
+  "Elegí Ubicación y cambiala a Permitir",
+];
+const LOCATION_HINT_CHROME_DESKTOP = [
+  "Hacé clic en el ícono a la izquierda de la dirección",
+  "Abrí Configuración de sitios",
+  "Cambialá Ubicación a Permitir",
+];
+const LOCATION_HINT_SAMSUNG = [
+  "Tocá el candado en la barra de direcciones",
+  "Entrá a los permisos del sitio",
+  "Activá Ubicación",
+];
+const LOCATION_HINT_FIREFOX_MOBILE = [
+  "Tocá el candado junto a la dirección",
+  "Abrí los permisos del sitio",
+  "Permití Ubicación",
+];
+const LOCATION_HINT_FIREFOX_DESKTOP = [
+  "Hacé clic en el candado junto a la dirección",
+  "Abrí los permisos del sitio",
+  "Permití Ubicación",
+];
+const LOCATION_HINT_SAFARI_IOS = [
+  "Tocá el menú de la página en la barra de direcciones",
+  "Entrá a Configuración del sitio web",
+  "Poné Ubicación en Permitir",
+];
+const LOCATION_HINT_SAFARI_DESKTOP = [
+  "Hacé clic en el ícono a la izquierda de la dirección",
+  "Abrí Ajustes del sitio",
+  "Permití Ubicación",
+];
+const LOCATION_HINT_IN_APP = [
+  "Abrí el menú de la app",
+  "Elegí Abrir en el navegador",
+];
+
+function isIosUa(ua: string): boolean {
+  if (/iphone|ipad|ipod/i.test(ua)) return true;
+  return navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+}
+
+function isMobileUa(ua: string): boolean {
+  return isIosUa(ua) || /android|mobile/i.test(ua);
+}
+
+function isInAppBrowser(ua: string): boolean {
+  return /Instagram|FBAN|FBAV|FB_IAB|WhatsApp|Line\/|TikTok|MicroMessenger|Snapchat|;\s*wv\)|WebView/i.test(
+    ua,
+  );
+}
+
+function locationPermissionHint(): string[] {
+  const ua = navigator.userAgent || "";
+  const mobile = isMobileUa(ua);
+
+  if (isInAppBrowser(ua)) return LOCATION_HINT_IN_APP;
+  if (/SamsungBrowser/i.test(ua)) return LOCATION_HINT_SAMSUNG;
+  if (/Edg/i.test(ua)) return mobile ? LOCATION_HINT_CHROME_MOBILE : LOCATION_HINT_CHROME_DESKTOP;
+  if (/Firefox|FxiOS/i.test(ua)) {
+    return mobile ? LOCATION_HINT_FIREFOX_MOBILE : LOCATION_HINT_FIREFOX_DESKTOP;
+  }
+  const looksLikeSafari =
+    (/safari/i.test(ua) || isIosUa(ua)) &&
+    !/chrome|crios|chromium|android|edg|fxios|firefox|samsung|opr|opera/i.test(ua);
+  if (looksLikeSafari) {
+    return mobile ? LOCATION_HINT_SAFARI_IOS : LOCATION_HINT_SAFARI_DESKTOP;
+  }
+  return mobile ? LOCATION_HINT_CHROME_MOBILE : LOCATION_HINT_CHROME_DESKTOP;
 }
 
 function ResultsSkeleton() {
@@ -142,6 +218,7 @@ export default function App() {
         const onChange = () => {
           if (status.state === "granted") {
             setError((prevErr) => {
+              if (prevErr === LOCATION_DENIED_ERROR) return null;
               const p = prevErr?.toLowerCase() ?? "";
               return p.includes("deneg") || p.includes("permiso") || p.includes("permitir")
                 ? null
@@ -200,9 +277,7 @@ export default function App() {
       (geoErr) => {
         setLoading(false);
         if (geoErr.code === geoErr.PERMISSION_DENIED) {
-          setError(
-            "Si niegas el acceso a la ubicación, no podremos mostrarte las casas de comidas cercanas. Si querés permitir el acceso, podés hacerlo en la configuración de tu navegador.",
-          );
+          setError(LOCATION_DENIED_ERROR);
         } else if (geoErr.code === geoErr.POSITION_UNAVAILABLE) {
           setError("No se pudo determinar tu ubicación.");
         } else {
@@ -227,70 +302,99 @@ export default function App() {
     window.open(adhesionUrl, "_blank", "noopener,noreferrer");
   };
 
+  const goHome = () => {
+    setError(null);
+    setItems(null);
+    setLoading(false);
+  };
+
   const showInitialEmpty = items === null && !loading && !error;
   const showResultsHeading = items !== null;
+  const hasResults = Boolean(!loading && items && items.length > 0);
 
   return (
     <>
-      <div className="mx-auto flex h-dvh min-h-0 w-full max-w-2xl flex-col overflow-hidden sm:px-4 py-6">
+      <div
+        className={`mx-auto flex h-dvh min-h-0 w-full max-w-2xl flex-col overflow-hidden sm:px-4 ${hasResults ? "py-3" : "py-6"}`}
+      >
         <header className="shrink-0">
-          <div className="flex items-start gap-3">
+          <div className={`flex gap-3 ${hasResults ? "items-center" : "items-start"}`}>
             <div
-              className="-rotate-[8deg] flex h-14 w-14 shrink-0 items-center justify-center "
+              className={`-rotate-[8deg] flex shrink-0 items-center justify-center ${hasResults ? "h-10 w-10" : "h-14 w-14"}`}
               aria-hidden
             >
               <img
                 src="/img/favicon_XL.png"
                 alt=""
-                className="h-14 w-14 object-contain drop-shadow-sm "
-                width={52}
-                height={52}
+                className={`object-contain drop-shadow-sm ${hasResults ? "h-10 w-10" : "h-14 w-14"}`}
+                width={hasResults ? 40 : 52}
+                height={hasResults ? 40 : 52}
               />
             </div>
-            <div className="min-w-0 flex-1 pt-1 text-left">
-              <p className="text-3xl font-bold tracking-tight text-[#06373A]">Sabore.ar</p>
-              <p className="mt-1 text-[10px] font-bold uppercase leading-[1.15] tracking-[0.14em] text-[#06373A]">
+            <div className={`min-w-0 flex-1 text-left ${hasResults ? "" : "pt-1"}`}>
+              <p
+                className={`font-bold tracking-tight text-[#06373A] ${hasResults ? "text-xl leading-tight" : "text-3xl"}`}
+              >
+                Sabore.ar
+              </p>
+              <p
+                className={`font-bold uppercase leading-[1.15] tracking-[0.14em] text-[#06373A] ${hasResults ? "mt-0.5 text-[9px]" : "mt-1 text-[10px]"}`}
+              >
                 La red de comida de tu barrio
               </p>
             </div>
+            {hasResults ? (
+              <button
+                type="button"
+                onClick={goHome}
+                aria-label="Inicio"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#FFC107] text-[#06373A] shadow-lg shadow-amber-900/15 ring-1 ring-black/10 transition-all hover:bg-[#E6AC00] hover:shadow-xl active:scale-[0.98]"
+              >
+                <Home className="h-6 w-6" strokeWidth={2.25} aria-hidden />
+              </button>
+            ) : null}
           </div>
         </header>
 
-        <div
-          className="mt-6 shrink-0 rounded-3xl bg-[#06373A] px-6 py-7 pb-10 shadow-xl shadow-black/20 ring-1 ring-black/15 sm:px-8 sm:py-8 sm:pb-11"
-          style={{ backgroundColor: "#06373A" }}
-        >
-          <h1 className="flex flex-row items-center gap-2 text-2xl font-bold leading-snug tracking-tight text-white">
-            <span className="wrap">Descubrí opciones cerca tuyo</span>
-            <MapPin
-              className="h-7 w-7 shrink-0 text-[#FFC107]"
-              strokeWidth={2.25}
-              aria-hidden
-            />
-          </h1>
-          <p className="mt-4 max-w-[19rem] text-[15px] font-normal leading-relaxed text-white/95">
-            Apoyá a emprendedores gastronómicos de tu barrio
-          </p>
-        </div>
-
-        <div className="relative z-10 -mt-7 shrink-0 px-1">
-          <div className="rounded-[1.75rem] bg-white/95 p-5 shadow-lg shadow-black/10 ring-1 ring-orange-950/10 backdrop-blur-[2px]">
-            <button
-              type="button"
-              onClick={searchNearby}
-              disabled={loading}
-              className="flex w-full items-center justify-center gap-3 rounded-full bg-[#FFC107] px-5 py-4 text-base font-extrabold tracking-tight text-[#06373A] shadow-lg shadow-amber-900/15 ring-1 ring-black/10 transition-all hover:bg-[#E6AC00] hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
-            >
-              <MapPinSearch className="h-6 w-6 shrink-0 text-[#06373A]" strokeWidth={2.25} aria-hidden />
-              {loading ? "Buscando…" : "Buscar casas de comidas cercanas"}
-            </button>
+        {hasResults ? null : (
+          <div
+            className="mt-6 shrink-0 rounded-3xl bg-[#06373A] px-6 py-7 pb-10 shadow-xl shadow-black/20 ring-1 ring-black/15 sm:px-8 sm:py-8 sm:pb-11"
+            style={{ backgroundColor: "#06373A" }}
+          >
+            <h1 className="flex flex-row items-center gap-2 text-2xl font-bold leading-snug tracking-tight text-white">
+              <span className="wrap">Descubrí opciones cerca tuyo</span>
+              <MapPin
+                className="h-7 w-7 shrink-0 text-[#FFC107]"
+                strokeWidth={2.25}
+                aria-hidden
+              />
+            </h1>
+            <p className="mt-4 max-w-[19rem] text-[15px] font-normal leading-relaxed text-white/95">
+              Apoyá a emprendedores gastronómicos de tu barrio
+            </p>
           </div>
-        </div>
+        )}
+
+        {hasResults ? null : (
+          <div className="relative z-10 -mt-7 shrink-0 px-1">
+            <div className="rounded-[1.75rem] bg-white/95 p-5 shadow-lg shadow-black/10 ring-1 ring-orange-950/10 backdrop-blur-[2px]">
+              <button
+                type="button"
+                onClick={searchNearby}
+                disabled={loading}
+                className="flex w-full items-center justify-center gap-3 rounded-full bg-[#FFC107] px-5 py-4 text-base font-extrabold tracking-tight text-[#06373A] shadow-lg shadow-amber-900/15 ring-1 ring-black/10 transition-all hover:bg-[#E6AC00] hover:shadow-xl active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
+              >
+                <MapPinSearch className="h-6 w-6 shrink-0 text-[#06373A]" strokeWidth={2.25} aria-hidden />
+                {loading ? "Buscando…" : "Buscar casas de comidas cercanas"}
+              </button>
+            </div>
+          </div>
+        )}
 
         <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <section className="flex min-h-0 flex-1 flex-col p-5">
             {showResultsHeading ? (
-              <h2 className="mb-4 shrink-0 text-lg font-extrabold tracking-tight text-[#06373A]">
+              <h2 className="mb-4 shrink-0 w-fit rounded-full bg-[#06373A] px-4 py-2 text-lg font-extrabold tracking-tight text-white">
                 Negocios cerca tuyo
               </h2>
             ) : null}
@@ -300,7 +404,21 @@ export default function App() {
                 className="mb-4 shrink-0 rounded-xl border border-red-100 bg-red-50/90 px-4 py-3 text-sm leading-relaxed text-red-900"
                 role="alert"
               >
-                {error}
+                {error === LOCATION_DENIED_ERROR ? (
+                  <>
+                    Si niegas el acceso a la ubicación, no podremos mostrarte las casas de comidas
+                    cercanas. Si querés permitir el acceso, podés hacerlo en la configuración de tu
+                    navegador.
+                    <p className="mt-2">Sigue estas instrucciones para activar la ubicación:</p>
+                    <ol className="mt-1 list-decimal space-y-0.5 pl-5 font-bold">
+                      {locationPermissionHint().map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                  </>
+                ) : (
+                  error
+                )}
               </div>
             ) : null}
 
