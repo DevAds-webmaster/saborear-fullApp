@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChefHat, Home, MapPin, MapPinSearch, ShoppingCart } from "lucide-react";
+import { ChefHat, Home, MapPin, MapPinSearch, Motorbike, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export type RedNearbyItem = {
@@ -194,16 +194,113 @@ function TermsModal({
   );
 }
 
+const JOIN_MESSAGE_EMPRENDIMIENTO =
+  "Hola! Quiero registrar mi emprendimiento gastronómico en la red de Saborear";
+const JOIN_MESSAGE_REPARTIDOR = "Hola! Quiero ser repartidor en la red de Saborear";
+
+function whatsappLink(number: string, message: string): string {
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
+
+function JoinNetworkModal({
+  open,
+  onClose,
+  whatsappNumber,
+}: {
+  open: boolean;
+  onClose: () => void;
+  whatsappNumber: string;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const optionClassName =
+    "flex w-full items-center justify-center gap-3 rounded-full bg-[#25D366] px-5 py-4 text-base font-bold tracking-tight text-white shadow-lg shadow-green-900/20 ring-1 ring-black/10 transition-all hover:bg-[#1EBE5A] hover:shadow-xl active:scale-[0.98]";
+
+  return (
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center bg-black/45 px-4 py-6 transition-opacity"
+      onClick={onClose}
+      role="presentation"
+    >
+      <section
+        className="z-50 w-full max-w-lg rounded-2xl border border-neutral-100 bg-white p-6 shadow-xl"
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="join-network-title"
+      >
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <h2
+            id="join-network-title"
+            className="text-lg font-bold tracking-tight text-neutral-900"
+          >
+            Sumate a la red de Sabore.ar
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg px-3 py-1.5 text-sm text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800"
+          >
+            Cerrar
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <a
+            href={whatsappLink(whatsappNumber, JOIN_MESSAGE_EMPRENDIMIENTO)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onClose}
+            className={optionClassName}
+          >
+            <span>Tengo un emprendimiento gastronómico</span>
+            <ChefHat className="h-6 w-6 shrink-0" strokeWidth={2.25} aria-hidden />
+          </a>
+          <a
+            href={whatsappLink(whatsappNumber, JOIN_MESSAGE_REPARTIDOR)}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onClose}
+            className={optionClassName}
+          >
+            <span>Quiero ser repartidor</span>
+            <Motorbike className="h-6 w-6 shrink-0" strokeWidth={2.25} aria-hidden />
+          </a>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default function App() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<RedNearbyItem[] | null>(null);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isJoinOpen, setIsJoinOpen] = useState(false);
 
   const apiBase = useMemo(() => trimBase(import.meta.env.VITE_PUBLIC_API_URL ?? ""), []);
   const menuBase = useMemo(() => trimBase(import.meta.env.VITE_URL_MENU ?? ""), []);
   const adhesionUrl = useMemo(() => trimBase(import.meta.env.VITE_RED_ADHESION_URL ?? ""), []);
+  const joinViaWhatsapp = useMemo(
+    () => import.meta.env.VITE_RED_ADHESION_WHATSAPP?.trim() === "true",
+    [],
+  );
+  const whatsappNumber = useMemo(
+    () => (import.meta.env.VITE_RED_WHATSAPP_NUMBER ?? "").replace(/\D/g, ""),
+    [],
+  );
+  const closeJoinModal = useCallback(() => setIsJoinOpen(false), []);
 
   useEffect(() => {
     if (!navigator.permissions?.query) return;
@@ -295,6 +392,14 @@ export default function App() {
   };
 
   const handleJoinNetworkClick = () => {
+    if (joinViaWhatsapp) {
+      if (!whatsappNumber) {
+        setError("Falta configurar VITE_RED_WHATSAPP_NUMBER.");
+        return;
+      }
+      setIsJoinOpen(true);
+      return;
+    }
     if (!adhesionUrl) {
       setError("Falta configurar VITE_RED_ADHESION_URL.");
       return;
@@ -536,6 +641,12 @@ export default function App() {
           setIsTermsOpen(false);
           navigate("/reclamos");
         }}
+      />
+
+      <JoinNetworkModal
+        open={isJoinOpen}
+        onClose={closeJoinModal}
+        whatsappNumber={whatsappNumber}
       />
     </>
   );
